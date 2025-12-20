@@ -1,0 +1,558 @@
+{
+  "labels": [
+    {"name": "phase:0-setup", "color": "FBCA04", "description": "Project setup tasks"},
+    {"name": "phase:1-api", "color": "0E8A16", "description": "API layer tasks"},
+    {"name": "phase:2-state", "color": "1D76DB", "description": "State management tasks"},
+    {"name": "phase:3-nav", "color": "D93F0B", "description": "Navigation tasks"},
+    {"name": "phase:4-ui", "color": "5319E7", "description": "UI component tasks"},
+    {"name": "phase:5-auth", "color": "006B75", "description": "Authentication tasks"},
+    {"name": "phase:6-logs", "color": "B60205", "description": "Log screen tasks"},
+    {"name": "phase:7-alerts", "color": "FBCA04", "description": "Alert screen tasks"},
+    {"name": "phase:8-settings", "color": "0E8A16", "description": "Settings tasks"},
+    {"name": "phase:9-offline", "color": "1D76DB", "description": "Offline support tasks"},
+    {"name": "phase:10-push", "color": "D93F0B", "description": "Push notification tasks"},
+    {"name": "phase:11-test", "color": "5319E7", "description": "Testing tasks"},
+    {"name": "phase:12-release", "color": "006B75", "description": "Release tasks"}
+  ],
+  "issues": [
+    {
+      "id": "P0-1",
+      "title": "Initialize Expo Project",
+      "labels": ["phase:0-setup"],
+      "dependencies": [],
+      "body": "Create new Expo managed workflow project with TypeScript template.\n\n**Commands:**\n```bash\nnpx create-expo-app blazelog-mobile --template expo-template-blank-typescript\n```\n\n**Acceptance Criteria:**\n- [ ] Project runs with `npx expo start`\n- [ ] TypeScript configured\n- [ ] Basic App.tsx renders"
+    },
+    {
+      "id": "P0-2",
+      "title": "Configure ESLint and Prettier",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-1"],
+      "body": "Set up linting and formatting with React Native specific rules.\n\n**Files to create:**\n- `.eslintrc.js`\n- `.prettierrc`\n- Update `package.json` scripts\n\n**Acceptance Criteria:**\n- [ ] `npm run lint` works\n- [ ] `npm run format` works"
+    },
+    {
+      "id": "P0-3",
+      "title": "Configure Path Aliases",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-1"],
+      "body": "Set up `@/` path alias for cleaner imports.\n\n**Files to modify:**\n- `tsconfig.json`\n- `babel.config.js`\n\n**Acceptance Criteria:**\n- [ ] Can import using `@/components/...`"
+    },
+    {
+      "id": "P0-4",
+      "title": "Install Core Dependencies",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-1"],
+      "body": "Install all required npm packages.\n\n**Commands:**\n```bash\nnpx expo install expo-secure-store expo-constants expo-notifications expo-device\nnpm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers\nnpm install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs\nnpx expo install react-native-screens react-native-safe-area-context\n```\n\n**Acceptance Criteria:**\n- [ ] All packages installed\n- [ ] No peer dependency conflicts"
+    },
+    {
+      "id": "P0-5",
+      "title": "Create Folder Structure",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-4"],
+      "body": "Create empty folder structure per ARCHITECTURE.md.\n\n**Folders to create:**\n- `src/api/`\n- `src/components/ui/`\n- `src/components/logs/`\n- `src/components/alerts/`\n- `src/components/common/`\n- `src/screens/auth/`\n- `src/screens/logs/`\n- `src/screens/alerts/`\n- `src/screens/projects/`\n- `src/screens/settings/`\n- `src/navigation/`\n- `src/store/`\n- `src/hooks/`\n- `src/utils/`\n- `src/theme/`\n- `src/types/`\n\n**Acceptance Criteria:**\n- [ ] All folders exist\n- [ ] Each folder has an `index.ts` for exports"
+    },
+    {
+      "id": "P0-6",
+      "title": "Configure Environment Variables",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-1"],
+      "body": "Set up Expo environment configuration.\n\n**Files to create:**\n- `app.config.ts`\n- `.env.example`\n- `.env.development`\n- `src/types/env.d.ts`\n\n**Acceptance Criteria:**\n- [ ] `API_URL` accessible via `Constants.expoConfig.extra`\n- [ ] TypeScript types for env vars"
+    },
+    {
+      "id": "P0-7",
+      "title": "Set Up Theme Configuration",
+      "labels": ["phase:0-setup"],
+      "dependencies": ["P0-4"],
+      "body": "Configure React Native Paper theme.\n\n**Files to create:**\n- `src/theme/colors.ts`\n- `src/theme/spacing.ts`\n- `src/theme/index.ts`\n\n**Acceptance Criteria:**\n- [ ] Light/dark theme defined\n- [ ] Colors match Blazelog brand"
+    },
+    {
+      "id": "P1-1",
+      "title": "Create Axios Client Instance",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P0-6"],
+      "body": "Set up base Axios instance with base URL and timeout.\n\n**Files to create:**\n- `src/api/client.ts`\n\n**Acceptance Criteria:**\n- [ ] Client configured with base URL from env\n- [ ] 10s timeout set\n- [ ] Exports `client` instance"
+    },
+    {
+      "id": "P1-2",
+      "title": "Create Secure Storage Helpers",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P0-4"],
+      "body": "Implement token storage using expo-secure-store.\n\n**Files to create:**\n- `src/utils/storage.ts`\n\n**Functions:**\n- `getAccessToken()`\n- `setAccessToken(token)`\n- `getRefreshToken()`\n- `setRefreshToken(token)`\n- `clearTokens()`\n\n**Acceptance Criteria:**\n- [ ] All functions implemented\n- [ ] TypeScript types correct"
+    },
+    {
+      "id": "P1-3",
+      "title": "Add Request Interceptor for Auth Header",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-2"],
+      "body": "Add Axios request interceptor to attach Bearer token.\n\n**Files to modify:**\n- `src/api/client.ts`\n\n**Acceptance Criteria:**\n- [ ] Token attached to Authorization header\n- [ ] Requests without token still work"
+    },
+    {
+      "id": "P1-4",
+      "title": "Add Response Interceptor for Token Refresh",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-3"],
+      "body": "Handle 401 responses with automatic token refresh.\n\n**Files to modify:**\n- `src/api/client.ts`\n\n**Acceptance Criteria:**\n- [ ] 401 triggers refresh attempt\n- [ ] Concurrent requests queue during refresh\n- [ ] Failed refresh clears tokens"
+    },
+    {
+      "id": "P1-5",
+      "title": "Create API Error Handler",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1"],
+      "body": "Implement error parsing and user-friendly messages.\n\n**Files to create:**\n- `src/utils/errors.ts`\n\n**Classes/Functions:**\n- `ApiError` class\n- `handleApiError(error)`\n- `showErrorAlert(error)`\n\n**Acceptance Criteria:**\n- [ ] Parses API error response\n- [ ] Maps error codes to messages"
+    },
+    {
+      "id": "P1-6",
+      "title": "Create API Types from Schema",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P0-5"],
+      "body": "Define TypeScript interfaces for API responses.\n\n**Files to create:**\n- `src/api/types.ts`\n\n**Types:**\n- `Log`\n- `Alert`\n- `AlertChannel`\n- `Project`\n- `User`\n- `ProjectMembership`\n- `PaginatedResponse<T>`\n- `ApiErrorResponse`\n\n**Acceptance Criteria:**\n- [ ] All types match ARCHITECTURE.md schemas"
+    },
+    {
+      "id": "P1-7",
+      "title": "Create Auth API Functions",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-6"],
+      "body": "Implement auth endpoint functions.\n\n**Files to create:**\n- `src/api/auth.ts`\n\n**Functions:**\n- `login(email, password)`\n- `refresh(refreshToken)`\n- `logout()`\n\n**Acceptance Criteria:**\n- [ ] All functions return typed responses"
+    },
+    {
+      "id": "P1-8",
+      "title": "Create Logs API Functions",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-6"],
+      "body": "Implement log endpoint functions.\n\n**Files to create:**\n- `src/api/logs.ts`\n\n**Functions:**\n- `getLogs(params)`\n- `getLog(id)`\n- `getLogStats(projectId)`\n\n**Acceptance Criteria:**\n- [ ] Pagination params supported\n- [ ] Filter params supported"
+    },
+    {
+      "id": "P1-9",
+      "title": "Create Alerts API Functions",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-6"],
+      "body": "Implement alert CRUD functions.\n\n**Files to create:**\n- `src/api/alerts.ts`\n\n**Functions:**\n- `getAlerts(projectId)`\n- `getAlert(id)`\n- `createAlert(data)`\n- `updateAlert(id, data)`\n- `deleteAlert(id)`\n\n**Acceptance Criteria:**\n- [ ] All CRUD operations implemented"
+    },
+    {
+      "id": "P1-10",
+      "title": "Create Projects API Functions",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-6"],
+      "body": "Implement project endpoint functions.\n\n**Files to create:**\n- `src/api/projects.ts`\n\n**Functions:**\n- `getProjects()`\n- `getProject(id)`\n\n**Acceptance Criteria:**\n- [ ] Returns typed Project array"
+    },
+    {
+      "id": "P1-11",
+      "title": "Create Users API Functions",
+      "labels": ["phase:1-api"],
+      "dependencies": ["P1-1", "P1-6"],
+      "body": "Implement user endpoint functions.\n\n**Files to create:**\n- `src/api/users.ts`\n\n**Functions:**\n- `getCurrentUser()`\n- `registerPushToken(token, platform)`\n\n**Acceptance Criteria:**\n- [ ] Returns typed User"
+    },
+    {
+      "id": "P2-1",
+      "title": "Create Auth Store",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P1-2", "P1-7"],
+      "body": "Implement Zustand store for auth state.\n\n**Files to create:**\n- `src/store/authStore.ts`\n\n**State:**\n- `isAuthenticated`\n- `isLoading`\n- `user`\n\n**Actions:**\n- `login(email, password)`\n- `logout()`\n- `checkAuth()`\n\n**Acceptance Criteria:**\n- [ ] Persists auth state check on app start\n- [ ] Clears state on logout"
+    },
+    {
+      "id": "P2-2",
+      "title": "Create Project Store",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P0-4"],
+      "body": "Implement Zustand store for project selection.\n\n**Files to create:**\n- `src/store/projectStore.ts`\n\n**State:**\n- `currentProjectId`\n- `projects`\n\n**Actions:**\n- `setCurrentProject(id)`\n- `setProjects(projects)`\n\n**Acceptance Criteria:**\n- [ ] Persists selected project"
+    },
+    {
+      "id": "P2-3",
+      "title": "Create Settings Store",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P0-4"],
+      "body": "Implement Zustand store for app preferences.\n\n**Files to create:**\n- `src/store/settingsStore.ts`\n\n**State:**\n- `theme` ('light' | 'dark' | 'system')\n- `notificationsEnabled`\n\n**Actions:**\n- `setTheme(theme)`\n- `setNotificationsEnabled(enabled)`\n\n**Acceptance Criteria:**\n- [ ] Persists to MMKV/AsyncStorage"
+    },
+    {
+      "id": "P2-4",
+      "title": "Create Store Exports",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P2-1", "P2-2", "P2-3"],
+      "body": "Create barrel export file.\n\n**Files to create:**\n- `src/store/index.ts`\n\n**Acceptance Criteria:**\n- [ ] All stores exported"
+    },
+    {
+      "id": "P2-5",
+      "title": "Set Up TanStack Query Client",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P0-4"],
+      "body": "Configure QueryClient with defaults.\n\n**Files to create:**\n- `src/utils/queryClient.ts`\n\n**Acceptance Criteria:**\n- [ ] Stale time configured (5 min)\n- [ ] Retry logic configured\n- [ ] GC time configured (24 hours)"
+    },
+    {
+      "id": "P2-6",
+      "title": "Add Query Client Persistence",
+      "labels": ["phase:2-state"],
+      "dependencies": ["P2-5"],
+      "body": "Persist query cache to MMKV.\n\n**Files to modify:**\n- `src/utils/queryClient.ts`\n\n**Dependencies to install:**\n- `react-native-mmkv`\n- `@tanstack/query-sync-storage-persister`\n\n**Acceptance Criteria:**\n- [ ] Cache survives app restart"
+    },
+    {
+      "id": "P3-1",
+      "title": "Define Navigation Types",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P0-5"],
+      "body": "Create TypeScript types for navigation params.\n\n**Files to create:**\n- `src/types/navigation.ts`\n\n**Types:**\n- `RootStackParamList`\n- `MainTabParamList`\n- `LogStackParamList`\n- `AlertStackParamList`\n\n**Acceptance Criteria:**\n- [ ] All screens have typed params"
+    },
+    {
+      "id": "P3-2",
+      "title": "Create Log Stack Navigator",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-1"],
+      "body": "Stack navigator for log screens.\n\n**Files to create:**\n- `src/navigation/LogStack.tsx`\n\n**Screens:**\n- LogListScreen\n- LogDetailScreen\n- LogStreamScreen\n\n**Acceptance Criteria:**\n- [ ] Navigation between screens works"
+    },
+    {
+      "id": "P3-3",
+      "title": "Create Alert Stack Navigator",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-1"],
+      "body": "Stack navigator for alert screens.\n\n**Files to create:**\n- `src/navigation/AlertStack.tsx`\n\n**Screens:**\n- AlertListScreen\n- AlertDetailScreen\n- AlertFormScreen\n\n**Acceptance Criteria:**\n- [ ] Navigation between screens works"
+    },
+    {
+      "id": "P3-4",
+      "title": "Create Main Tab Navigator",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-2", "P3-3"],
+      "body": "Bottom tab navigator.\n\n**Files to create:**\n- `src/navigation/MainTabs.tsx`\n\n**Tabs:**\n- Logs (LogStack)\n- Alerts (AlertStack)\n- Settings\n\n**Acceptance Criteria:**\n- [ ] Tabs switch correctly\n- [ ] Icons displayed"
+    },
+    {
+      "id": "P3-5",
+      "title": "Create Root Navigator",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P2-1", "P3-4"],
+      "body": "Root navigator with auth check.\n\n**Files to create:**\n- `src/navigation/RootNavigator.tsx`\n\n**Logic:**\n- Show Login if not authenticated\n- Show MainTabs if authenticated\n- Show loading during auth check\n\n**Acceptance Criteria:**\n- [ ] Redirects based on auth state"
+    },
+    {
+      "id": "P3-6",
+      "title": "Configure Deep Linking",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-5"],
+      "body": "Set up deep link configuration.\n\n**Files to create:**\n- `src/navigation/linking.ts`\n\n**URL patterns:**\n- `blazelog://logs`\n- `blazelog://logs/:logId`\n- `blazelog://alerts`\n- `blazelog://alerts/:alertId`\n\n**Acceptance Criteria:**\n- [ ] Deep links open correct screens"
+    },
+    {
+      "id": "P3-7",
+      "title": "Integrate Navigation in App.tsx",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-5", "P3-6", "P2-5"],
+      "body": "Set up NavigationContainer with providers.\n\n**Files to modify:**\n- `App.tsx`\n\n**Providers to add:**\n- QueryClientProvider\n- PaperProvider\n- NavigationContainer\n\n**Acceptance Criteria:**\n- [ ] App renders with navigation"
+    },
+    {
+      "id": "P4-1",
+      "title": "Create Button Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Reusable button with variants.\n\n**Files to create:**\n- `src/components/ui/Button.tsx`\n\n**Props:**\n- `variant`: 'primary' | 'secondary' | 'outline'\n- `loading`: boolean\n- `disabled`: boolean\n\n**Acceptance Criteria:**\n- [ ] All variants styled\n- [ ] Loading state shows spinner"
+    },
+    {
+      "id": "P4-2",
+      "title": "Create Input Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Text input with label and error.\n\n**Files to create:**\n- `src/components/ui/Input.tsx`\n\n**Props:**\n- `label`\n- `error`\n- `secureTextEntry`\n\n**Acceptance Criteria:**\n- [ ] Error state styled red\n- [ ] Label animates on focus"
+    },
+    {
+      "id": "P4-3",
+      "title": "Create Card Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Container card with shadow.\n\n**Files to create:**\n- `src/components/ui/Card.tsx`\n\n**Acceptance Criteria:**\n- [ ] Consistent shadow/elevation\n- [ ] Supports onPress"
+    },
+    {
+      "id": "P4-4",
+      "title": "Create EmptyState Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Empty list placeholder.\n\n**Files to create:**\n- `src/components/common/EmptyState.tsx`\n\n**Props:**\n- `icon`\n- `title`\n- `description`\n- `action` (optional button)\n\n**Acceptance Criteria:**\n- [ ] Centered layout\n- [ ] Optional action button"
+    },
+    {
+      "id": "P4-5",
+      "title": "Create LoadingScreen Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Full screen loading indicator.\n\n**Files to create:**\n- `src/components/common/LoadingScreen.tsx`\n\n**Acceptance Criteria:**\n- [ ] Centered spinner\n- [ ] Optional message"
+    },
+    {
+      "id": "P4-6",
+      "title": "Create OfflineBanner Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Banner shown when offline.\n\n**Files to create:**\n- `src/components/common/OfflineBanner.tsx`\n\n**Acceptance Criteria:**\n- [ ] Fixed position at top\n- [ ] Yellow/warning color"
+    },
+    {
+      "id": "P4-7",
+      "title": "Create LogLevelBadge Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P0-7"],
+      "body": "Colored badge for log levels.\n\n**Files to create:**\n- `src/components/logs/LogLevelBadge.tsx`\n\n**Colors:**\n- debug: gray\n- info: blue\n- warn: yellow\n- error: red\n- fatal: purple\n\n**Acceptance Criteria:**\n- [ ] Each level has distinct color"
+    },
+    {
+      "id": "P4-8",
+      "title": "Create LogEntry Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P4-7", "P4-3"],
+      "body": "Single log entry row.\n\n**Files to create:**\n- `src/components/logs/LogEntry.tsx`\n\n**Displays:**\n- Level badge\n- Timestamp\n- Message (truncated)\n- Source (if present)\n\n**Acceptance Criteria:**\n- [ ] Tappable for detail view\n- [ ] Message truncates at 2 lines"
+    },
+    {
+      "id": "P4-9",
+      "title": "Create LogFilter Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P4-1"],
+      "body": "Filter bar for log list.\n\n**Files to create:**\n- `src/components/logs/LogFilter.tsx`\n\n**Filters:**\n- Level (multi-select chips)\n- Date range\n- Search text\n\n**Acceptance Criteria:**\n- [ ] Filters update callback on change"
+    },
+    {
+      "id": "P4-10",
+      "title": "Create AlertCard Component",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P4-3", "P4-7"],
+      "body": "Alert list item card.\n\n**Files to create:**\n- `src/components/alerts/AlertCard.tsx`\n\n**Displays:**\n- Name\n- Description\n- Condition summary\n- Enabled toggle\n\n**Acceptance Criteria:**\n- [ ] Toggle enables/disables alert"
+    },
+    {
+      "id": "P4-11",
+      "title": "Create UI Components Index",
+      "labels": ["phase:4-ui"],
+      "dependencies": ["P4-1", "P4-2", "P4-3", "P4-4", "P4-5", "P4-6", "P4-7", "P4-8", "P4-9", "P4-10"],
+      "body": "Barrel exports for components.\n\n**Files to create:**\n- `src/components/ui/index.ts`\n- `src/components/common/index.ts`\n- `src/components/logs/index.ts`\n- `src/components/alerts/index.ts`\n\n**Acceptance Criteria:**\n- [ ] All components exported"
+    },
+    {
+      "id": "P5-1",
+      "title": "Create Login Screen Layout",
+      "labels": ["phase:5-auth"],
+      "dependencies": ["P4-1", "P4-2"],
+      "body": "Login form UI without logic.\n\n**Files to create:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Elements:**\n- Logo\n- Email input\n- Password input\n- Login button\n- Forgot password link\n\n**Acceptance Criteria:**\n- [ ] Keyboard avoiding view\n- [ ] Inputs styled"
+    },
+    {
+      "id": "P5-2",
+      "title": "Add Login Form Validation",
+      "labels": ["phase:5-auth"],
+      "dependencies": ["P5-1"],
+      "body": "Add react-hook-form with Zod validation.\n\n**Files to modify:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Validation:**\n- Email: required, valid format\n- Password: required, min 8 chars\n\n**Acceptance Criteria:**\n- [ ] Errors display on blur\n- [ ] Submit disabled if invalid"
+    },
+    {
+      "id": "P5-3",
+      "title": "Connect Login to Auth Store",
+      "labels": ["phase:5-auth"],
+      "dependencies": ["P5-2", "P2-1"],
+      "body": "Wire up login form to auth store.\n\n**Files to modify:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Acceptance Criteria:**\n- [ ] Successful login navigates to main\n- [ ] Error shows alert"
+    },
+    {
+      "id": "P5-4",
+      "title": "Create Forgot Password Screen",
+      "labels": ["phase:5-auth"],
+      "dependencies": ["P4-1", "P4-2"],
+      "body": "Password reset request form.\n\n**Files to create:**\n- `src/screens/auth/ForgotPasswordScreen.tsx`\n\n**Acceptance Criteria:**\n- [ ] Email input with validation\n- [ ] Success message on submit"
+    },
+    {
+      "id": "P6-1",
+      "title": "Create useLogsQuery Hook",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P1-8", "P2-5"],
+      "body": "TanStack Query hook for fetching logs.\n\n**Files to create:**\n- `src/hooks/useLogs.ts`\n\n**Features:**\n- Infinite query for pagination\n- Filter parameters\n- Error handling\n\n**Acceptance Criteria:**\n- [ ] Returns paginated data\n- [ ] Supports refetch"
+    },
+    {
+      "id": "P6-2",
+      "title": "Create LogList Component",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P4-8", "P6-1"],
+      "body": "FlatList of log entries.\n\n**Files to create:**\n- `src/components/logs/LogList.tsx`\n\n**Features:**\n- Infinite scroll (onEndReached)\n- Pull to refresh\n- Empty state\n\n**Acceptance Criteria:**\n- [ ] Loads more on scroll\n- [ ] Shows loading footer"
+    },
+    {
+      "id": "P6-3",
+      "title": "Create Log List Screen",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P6-2", "P4-9"],
+      "body": "Main log viewing screen.\n\n**Files to create:**\n- `src/screens/logs/LogListScreen.tsx`\n\n**Features:**\n- Filter bar\n- Log list\n- Project context\n\n**Acceptance Criteria:**\n- [ ] Filters update list\n- [ ] Navigation to detail"
+    },
+    {
+      "id": "P6-4",
+      "title": "Create Log Detail Screen",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P4-7", "P1-8"],
+      "body": "Full log entry view.\n\n**Files to create:**\n- `src/screens/logs/LogDetailScreen.tsx`\n\n**Displays:**\n- All log fields\n- Formatted timestamp\n- Expandable metadata JSON\n- Copy button\n\n**Acceptance Criteria:**\n- [ ] Metadata is collapsible\n- [ ] Can copy log ID"
+    },
+    {
+      "id": "P6-5",
+      "title": "Create useSSE Hook",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P1-2"],
+      "body": "SSE connection hook with reconnection.\n\n**Files to create:**\n- `src/hooks/useSSE.ts`\n\n**Features:**\n- Connect with auth token\n- Exponential backoff retry\n- Network status awareness\n\n**Acceptance Criteria:**\n- [ ] Reconnects on disconnect\n- [ ] Stops on unmount"
+    },
+    {
+      "id": "P6-6",
+      "title": "Create Log Stream Screen",
+      "labels": ["phase:6-logs"],
+      "dependencies": ["P6-5", "P4-8"],
+      "body": "Real-time log streaming view.\n\n**Files to create:**\n- `src/screens/logs/LogStreamScreen.tsx`\n\n**Features:**\n- Live log feed (newest first)\n- Connection status indicator\n- Pause/resume\n- Level filter\n\n**Acceptance Criteria:**\n- [ ] Logs appear in real-time\n- [ ] Max 500 logs in memory"
+    },
+    {
+      "id": "P7-1",
+      "title": "Create useAlertsQuery Hook",
+      "labels": ["phase:7-alerts"],
+      "dependencies": ["P1-9", "P2-5"],
+      "body": "TanStack Query hooks for alerts.\n\n**Files to create:**\n- `src/hooks/useAlerts.ts`\n\n**Hooks:**\n- `useAlerts(projectId)`\n- `useAlert(id)`\n- `useCreateAlert()`\n- `useUpdateAlert()`\n- `useDeleteAlert()`\n\n**Acceptance Criteria:**\n- [ ] Mutations invalidate queries"
+    },
+    {
+      "id": "P7-2",
+      "title": "Create Alert List Screen",
+      "labels": ["phase:7-alerts"],
+      "dependencies": ["P7-1", "P4-10"],
+      "body": "List of project alerts.\n\n**Files to create:**\n- `src/screens/alerts/AlertListScreen.tsx`\n\n**Features:**\n- FlatList of AlertCards\n- FAB to create new\n- Empty state\n\n**Acceptance Criteria:**\n- [ ] Toggle updates alert\n- [ ] Navigate to detail/edit"
+    },
+    {
+      "id": "P7-3",
+      "title": "Create Alert Detail Screen",
+      "labels": ["phase:7-alerts"],
+      "dependencies": ["P7-1"],
+      "body": "View alert details.\n\n**Files to create:**\n- `src/screens/alerts/AlertDetailScreen.tsx`\n\n**Displays:**\n- Name, description\n- Condition details\n- Notification channels\n- Edit/Delete buttons\n\n**Acceptance Criteria:**\n- [ ] Delete shows confirmation\n- [ ] Edit navigates to form"
+    },
+    {
+      "id": "P7-4",
+      "title": "Create Alert Form Screen",
+      "labels": ["phase:7-alerts"],
+      "dependencies": ["P7-1", "P4-1", "P4-2"],
+      "body": "Create/edit alert form.\n\n**Files to create:**\n- `src/screens/alerts/AlertFormScreen.tsx`\n\n**Fields:**\n- Name\n- Description\n- Level (picker)\n- Threshold\n- Time window\n- Search filter\n- Channels (multi-select)\n\n**Acceptance Criteria:**\n- [ ] Works for create and edit\n- [ ] Validates required fields"
+    },
+    {
+      "id": "P8-1",
+      "title": "Create useProjectsQuery Hook",
+      "labels": ["phase:8-settings"],
+      "dependencies": ["P1-10", "P2-5"],
+      "body": "Query hook for projects.\n\n**Files to create:**\n- `src/hooks/useProjects.ts`\n\n**Acceptance Criteria:**\n- [ ] Returns user's projects"
+    },
+    {
+      "id": "P8-2",
+      "title": "Create Project Switcher Screen",
+      "labels": ["phase:8-settings"],
+      "dependencies": ["P8-1", "P2-2"],
+      "body": "Project selection screen.\n\n**Files to create:**\n- `src/screens/projects/ProjectSwitcherScreen.tsx`\n\n**Features:**\n- List of projects\n- Current project highlighted\n- Tap to switch\n\n**Acceptance Criteria:**\n- [ ] Updates project store\n- [ ] Navigates back after select"
+    },
+    {
+      "id": "P8-3",
+      "title": "Create Settings Screen",
+      "labels": ["phase:8-settings"],
+      "dependencies": ["P2-3", "P2-1"],
+      "body": "App settings and preferences.\n\n**Files to create:**\n- `src/screens/settings/SettingsScreen.tsx`\n\n**Options:**\n- Theme toggle\n- Notification toggle\n- Current project (tap to switch)\n- Logout button\n- App version\n\n**Acceptance Criteria:**\n- [ ] Settings persist\n- [ ] Logout clears auth"
+    },
+    {
+      "id": "P9-1",
+      "title": "Create Network Status Hook",
+      "labels": ["phase:9-offline"],
+      "dependencies": ["P0-4"],
+      "body": "Hook to monitor network state.\n\n**Files to create:**\n- `src/hooks/useNetworkStatus.ts`\n\n**Install:** `@react-native-community/netinfo`\n\n**Returns:**\n- `isOnline`\n- `connectionType`\n\n**Acceptance Criteria:**\n- [ ] Updates on network change"
+    },
+    {
+      "id": "P9-2",
+      "title": "Integrate Offline Banner",
+      "labels": ["phase:9-offline"],
+      "dependencies": ["P4-6", "P9-1"],
+      "body": "Show banner when offline.\n\n**Files to modify:**\n- `src/navigation/RootNavigator.tsx`\n\n**Acceptance Criteria:**\n- [ ] Banner appears when offline\n- [ ] Disappears when online"
+    },
+    {
+      "id": "P9-3",
+      "title": "Configure Offline Query Behavior",
+      "labels": ["phase:9-offline"],
+      "dependencies": ["P2-6", "P9-1"],
+      "body": "Adjust query behavior when offline.\n\n**Files to modify:**\n- `src/utils/queryClient.ts`\n\n**Behavior:**\n- Serve from cache when offline\n- Disable refetch when offline\n\n**Acceptance Criteria:**\n- [ ] Cached data shows when offline\n- [ ] No network errors when offline"
+    },
+    {
+      "id": "P10-1",
+      "title": "Create Notification Registration",
+      "labels": ["phase:10-push"],
+      "dependencies": ["P1-11"],
+      "body": "Request permission and register token.\n\n**Files to create:**\n- `src/utils/notifications.ts`\n\n**Functions:**\n- `registerForPushNotifications()`\n\n**Acceptance Criteria:**\n- [ ] Requests permission\n- [ ] Registers token with backend"
+    },
+    {
+      "id": "P10-2",
+      "title": "Configure Android Notification Channel",
+      "labels": ["phase:10-push"],
+      "dependencies": ["P10-1"],
+      "body": "Set up Android notification channel.\n\n**Files to modify:**\n- `src/utils/notifications.ts`\n\n**Acceptance Criteria:**\n- [ ] 'alerts' channel created\n- [ ] High importance set"
+    },
+    {
+      "id": "P10-3",
+      "title": "Handle Notification Taps",
+      "labels": ["phase:10-push"],
+      "dependencies": ["P10-1", "P3-5"],
+      "body": "Navigate on notification tap.\n\n**Files to modify:**\n- `App.tsx`\n\n**Behavior:**\n- Alert notification → AlertDetailScreen\n\n**Acceptance Criteria:**\n- [ ] Tapping notification opens correct screen"
+    },
+    {
+      "id": "P10-4",
+      "title": "Integrate Notification Registration",
+      "labels": ["phase:10-push"],
+      "dependencies": ["P10-1", "P2-1"],
+      "body": "Register after login.\n\n**Files to modify:**\n- `src/store/authStore.ts`\n\n**Acceptance Criteria:**\n- [ ] Token registered after successful login"
+    },
+    {
+      "id": "P11-1",
+      "title": "Configure Jest",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P0-1"],
+      "body": "Set up Jest for unit tests.\n\n**Files to create/modify:**\n- `jest.config.js`\n- `jest.setup.js`\n\n**Acceptance Criteria:**\n- [ ] `npm test` runs"
+    },
+    {
+      "id": "P11-2",
+      "title": "Add React Native Testing Library",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P11-1"],
+      "body": "Set up RNTL for component tests.\n\n**Install:** `@testing-library/react-native`\n\n**Acceptance Criteria:**\n- [ ] Can render and query components"
+    },
+    {
+      "id": "P11-3",
+      "title": "Write Auth Store Tests",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P11-1", "P2-1"],
+      "body": "Unit tests for auth store.\n\n**Files to create:**\n- `__tests__/store/authStore.test.ts`\n\n**Test cases:**\n- Initial state\n- Login success\n- Login failure\n- Logout\n\n**Acceptance Criteria:**\n- [ ] All tests pass"
+    },
+    {
+      "id": "P11-4",
+      "title": "Write API Error Handler Tests",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P11-1", "P1-5"],
+      "body": "Unit tests for error handling.\n\n**Files to create:**\n- `__tests__/utils/errors.test.ts`\n\n**Acceptance Criteria:**\n- [ ] Error parsing tested\n- [ ] Message mapping tested"
+    },
+    {
+      "id": "P11-5",
+      "title": "Write LogEntry Component Tests",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P11-2", "P4-8"],
+      "body": "Component tests for LogEntry.\n\n**Files to create:**\n- `__tests__/components/LogEntry.test.tsx`\n\n**Acceptance Criteria:**\n- [ ] Renders all log fields\n- [ ] Level badge correct"
+    },
+    {
+      "id": "P11-6",
+      "title": "Set Up Maestro E2E Tests",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P5-3"],
+      "body": "Configure Maestro for E2E tests.\n\n**Files to create:**\n- `.maestro/login.yaml`\n\n**Acceptance Criteria:**\n- [ ] Login flow E2E test passes"
+    },
+    {
+      "id": "P11-7",
+      "title": "Write Log Viewing E2E Test",
+      "labels": ["phase:11-test"],
+      "dependencies": ["P11-6", "P6-3"],
+      "body": "E2E test for viewing logs.\n\n**Files to create:**\n- `.maestro/view-logs.yaml`\n\n**Acceptance Criteria:**\n- [ ] Can login and view logs"
+    },
+    {
+      "id": "P12-1",
+      "title": "Add App Icons",
+      "labels": ["phase:12-release"],
+      "dependencies": ["P0-1"],
+      "body": "Create and configure app icons.\n\n**Files to add:**\n- `assets/icon.png` (1024x1024)\n- `assets/adaptive-icon.png`\n\n**Acceptance Criteria:**\n- [ ] Icons display on both platforms"
+    },
+    {
+      "id": "P12-2",
+      "title": "Add Splash Screen",
+      "labels": ["phase:12-release"],
+      "dependencies": ["P0-1"],
+      "body": "Configure splash screen.\n\n**Files to add:**\n- `assets/splash.png`\n\n**Acceptance Criteria:**\n- [ ] Splash shows during load"
+    },
+    {
+      "id": "P12-3",
+      "title": "Configure App Metadata",
+      "labels": ["phase:12-release"],
+      "dependencies": ["P12-1", "P12-2"],
+      "body": "Update app.json with final metadata.\n\n**Fields:**\n- name\n- slug\n- version\n- bundleIdentifier\n- package\n\n**Acceptance Criteria:**\n- [ ] Both platforms build"
+    },
+    {
+      "id": "P12-4",
+      "title": "Create Production Build",
+      "labels": ["phase:12-release"],
+      "dependencies": ["P12-3"],
+      "body": "Generate production builds.\n\n**Commands:**\n```bash\neas build --platform ios\neas build --platform android\n```\n\n**Acceptance Criteria:**\n- [ ] iOS build succeeds\n- [ ] Android build succeeds"
+    }
+  ]
+}
