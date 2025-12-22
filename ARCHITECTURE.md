@@ -43,7 +43,8 @@ blazelog-mobile/
 │   │   ├── auth.ts             # Auth API functions
 │   │   ├── logs.ts             # Log API functions
 │   │   ├── alerts.ts           # Alert API functions
-│   │   └── projects.ts         # Project API functions
+│   │   ├── projects.ts         # Project API functions
+│   │   └── users.ts            # User API functions
 │   ├── components/
 │   │   ├── ui/                 # Reusable UI primitives
 │   │   │   ├── Button.tsx
@@ -60,7 +61,6 @@ blazelog-mobile/
 │   ├── screens/
 │   │   ├── auth/
 │   │   │   ├── LoginScreen.tsx
-│   │   │   └── ForgotPasswordScreen.tsx
 │   │   ├── logs/
 │   │   │   ├── LogListScreen.tsx
 │   │   │   ├── LogDetailScreen.tsx
@@ -69,15 +69,20 @@ blazelog-mobile/
 │   │   │   ├── AlertListScreen.tsx
 │   │   │   ├── AlertDetailScreen.tsx
 │   │   │   └── AlertFormScreen.tsx
+│   │   ├── admin/
+│   │   │   ├── UserListScreen.tsx
+│   │   │   └── UserDetailScreen.tsx
 │   │   ├── projects/
 │   │   │   └── ProjectSwitcherScreen.tsx
 │   │   └── settings/
-│   │       └── SettingsScreen.tsx
+│   │       ├── SettingsScreen.tsx
+│   │       └── ChangePasswordScreen.tsx
 │   ├── navigation/
 │   │   ├── RootNavigator.tsx   # Auth check, main navigation setup
 │   │   ├── MainTabs.tsx        # Bottom tab navigator
 │   │   ├── LogStack.tsx        # Log-related screens stack
 │   │   ├── AlertStack.tsx      # Alert-related screens stack
+│   │   ├── SettingsStack.tsx   # Settings/admin screens stack
 │   │   └── linking.ts          # Deep link configuration
 │   ├── store/
 │   │   ├── authStore.ts        # Auth state (tokens, user)
@@ -114,7 +119,7 @@ blazelog-mobile/
 ## Available Endpoints
 
 ### Auth
-- `POST /auth/login` - Get access + refresh tokens
+- `POST /auth/login` - Get access + refresh tokens (username + password)
 - `POST /auth/refresh` - Refresh access token
 - `POST /auth/logout` - Revoke tokens
 
@@ -126,17 +131,30 @@ blazelog-mobile/
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `project_id` | string (UUID) | Filter by project (required) |
-| `level` | string | Filter by level: `debug`, `info`, `warn`, `error`, `fatal` |
-| `search` | string | Full-text search in message and metadata |
-| `start_time` | string (ISO 8601) | Start of time range |
-| `end_time` | string (ISO 8601) | End of time range |
-| `cursor` | string | Pagination cursor (from previous response) |
-| `limit` | integer | Results per page (default: 50, max: 100) |
+| `start` | string (RFC3339) | Start time (required) |
+| `end` | string (RFC3339) | End time (default now) |
+| `agent_id` | string | Filter by agent |
+| `level` | string | Filter by single level |
+| `levels` | string | Comma-separated levels |
+| `type` | string | Filter by type |
+| `source` | string | Filter by source |
+| `file_path` | string | Filter by file path |
+| `q` | string | Message search query |
+| `search_mode` | string | `token`, `substring`, or `phrase` |
+| `page` | integer | Page number (default: 1) |
+| `per_page` | integer | Results per page (default: 50, max: 1000) |
+| `order` | string | Sort by `timestamp` or `level` |
+| `order_dir` | string | Sort direction: `asc` or `desc` |
+
+Note: The OpenAPI does not include `project_id` for logs; access is scoped by auth and backend configuration.
 
 #### `GET /logs/stats` - Log statistics
 
-Returns aggregated counts by level, project, and time buckets.
+Returns aggregated counts by time buckets and filters.
+
+#### `GET /logs/{id}` - Get log by ID
+
+Returns a single log entry by ID.
 
 #### `GET /logs/stream` - SSE real-time stream
 
@@ -144,33 +162,109 @@ Returns aggregated counts by level, project, and time buckets.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `project_id` | string (UUID) | Stream logs for project (required) |
-| `level` | string | Minimum level to stream |
+| `start` | string (RFC3339) | Start time (default last 5 minutes) |
+| `agent_id` | string | Filter by agent |
+| `level` | string | Filter by single level |
+| `levels` | string | Comma-separated levels |
+| `type` | string | Filter by type |
+| `source` | string | Filter by source |
+| `q` | string | Message search query |
+| `search_mode` | string | `token`, `substring`, or `phrase` |
 
 **SSE Events:**
 - `log` - New log entry
 - `heartbeat` - Keep-alive (every 30s)
 - `error` - Stream error
 
-### Resources
-- `GET/POST/PUT/DELETE /alerts` - Alert management
-- `GET/POST/PUT/DELETE /projects` - Project management
+### Users
 - `GET /users/me` - Current user profile
+- `PUT /users/me/password` - Change current user's password
+- `GET/POST /users` - List/create users (admin only)
+- `GET/PUT/DELETE /users/{id}` - User management (admin only)
+- `PUT /users/{id}/password` - Reset user password (admin only; lower roles only; cannot reset own password)
+- `POST /users/me/push-token` - Register device push token
+
+### Alerts
+- `GET/POST /alerts` - Alert management
+- `GET /alerts/history` - Alert trigger history
+- `GET/PUT/DELETE /alerts/{id}` - Alert details and updates
+
+### Projects
+- `GET/POST /projects` - Project management
+- `GET/PUT/DELETE /projects/{id}` - Project details and updates
+- `GET/POST /projects/{id}/users` - Project user membership
+- `DELETE /projects/{id}/users/{userId}` - Remove user from project
+
+### Connections
+- `GET/POST /connections` - Connection management
+- `GET/PUT/DELETE /connections/{id}` - Connection details and updates
+- `POST /connections/{id}/test` - Test connection
+
+### Health
+- `GET /health` - Health check
 
 ## Response Schemas
+
+Most endpoints wrap payloads in a `data` envelope.
+
+```typescript
+interface ApiEnvelope<T> {
+  data: T;
+}
+```
+
+### Auth
+
+```typescript
+interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;            // Access token TTL in seconds
+  token_type: 'Bearer';
+}
+```
+
+### User
+
+```typescript
+interface User {
+  id: string;                    // UUID
+  username: string;
+  email: string;
+  role: 'admin' | 'operator' | 'viewer';
+  created_at: string;            // ISO 8601
+  updated_at: string;            // ISO 8601
+}
+```
 
 ### Log
 
 ```typescript
 interface Log {
-  id: string;                    // UUID
-  project_id: string;            // UUID
-  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-  message: string;
+  id: string;
   timestamp: string;             // ISO 8601
-  metadata: Record<string, unknown>;
-  source?: string;               // Service/component name
-  trace_id?: string;             // Distributed tracing ID
+  level: 'debug' | 'info' | 'warning' | 'error' | 'fatal';
+  message: string;
+  source?: string;
+  type?: string;
+  agent_id?: string;
+  file_path?: string;
+  line_number?: number;
+  fields?: Record<string, unknown>;
+  labels?: Record<string, string>;
+  http_status?: number;
+  http_method?: string;
+  uri?: string;
+}
+```
+
+```typescript
+interface LogsResponse {
+  items: Log[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
 }
 ```
 
@@ -179,24 +273,18 @@ interface Log {
 ```typescript
 interface Alert {
   id: string;                    // UUID
-  project_id: string;            // UUID
   name: string;
   description?: string;
-  condition: {
-    level: 'warn' | 'error' | 'fatal';
-    threshold: number;           // Count threshold
-    window_minutes: number;      // Time window
-    search?: string;             // Optional search filter
-  };
-  channels: AlertChannel[];      // Notification targets
+  type: 'error_rate' | 'log_match' | 'threshold';
+  condition: string;             // Condition expression
+  severity: 'info' | 'warning' | 'critical';
+  window: string;                // e.g. "5m"
+  cooldown: string;              // e.g. "10m"
+  notify: string[];              // Notification channel names
   enabled: boolean;
+  project_id: string;            // UUID
   created_at: string;
   updated_at: string;
-}
-
-interface AlertChannel {
-  type: 'email' | 'slack' | 'webhook' | 'push';
-  config: Record<string, string>;
 }
 ```
 
@@ -206,37 +294,28 @@ interface AlertChannel {
 interface Project {
   id: string;                    // UUID
   name: string;
-  slug: string;                  // URL-safe identifier
-  api_key: string;               // For log ingestion (read-only in app)
+  description?: string;
   created_at: string;
   updated_at: string;
 }
 ```
 
-### User
+### Error
 
 ```typescript
-interface User {
-  id: string;                    // UUID
-  email: string;
-  name: string;
-  avatar_url?: string;
-  projects: ProjectMembership[];
-}
-
-interface ProjectMembership {
-  project_id: string;
-  role: 'owner' | 'admin' | 'member' | 'viewer';
-}
-```
-
-### Paginated Response
-
-```typescript
-interface PaginatedResponse<T> {
-  data: T[];
-  cursor?: string;               // null if no more pages
-  has_more: boolean;
+interface ErrorResponse {
+  error: {
+    code:
+      | 'BAD_REQUEST'
+      | 'VALIDATION_FAILED'
+      | 'UNAUTHORIZED'
+      | 'FORBIDDEN'
+      | 'NOT_FOUND'
+      | 'CONFLICT'
+      | 'ACCOUNT_LOCKED'
+      | 'INTERNAL_ERROR';
+    message: string;
+  };
 }
 ```
 
@@ -317,6 +396,7 @@ export const storage = {
 ```typescript
 // src/api/client.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import Constants from 'expo-constants';
 import { storage } from '../utils/storage';
 import { authStore } from '../store/authStore';
 
@@ -377,7 +457,7 @@ client.interceptors.response.use(
           { refresh_token: refreshToken }
         );
 
-        const { access_token, refresh_token } = response.data;
+        const { access_token, refresh_token } = response.data.data;
         await storage.setAccessToken(access_token);
         await storage.setRefreshToken(refresh_token);
 
@@ -385,9 +465,8 @@ client.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return client(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - logout user
-        await storage.clearTokens();
-        authStore.getState().logout();
+        // Refresh failed - clear session without triggering API calls
+        await authStore.getState().clearSession();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -406,14 +485,17 @@ export { client };
 ```typescript
 // src/store/authStore.ts
 import { create } from 'zustand';
+import { client } from '../api/client';
 import { storage } from '../utils/storage';
+import type { User } from '../api/types';
 
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  clearSession: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -422,24 +504,32 @@ export const authStore = create<AuthState>((set, get) => ({
   isLoading: true,
   user: null,
 
-  login: async (email, password) => {
-    const response = await client.post('/auth/login', { email, password });
-    const { access_token, refresh_token, user } = response.data;
+  login: async (username, password) => {
+    const response = await client.post('/auth/login', { username, password });
+    const { access_token, refresh_token } = response.data.data;
     
     await storage.setAccessToken(access_token);
     await storage.setRefreshToken(refresh_token);
-    
-    set({ isAuthenticated: true, user });
+
+    const userResponse = await client.get('/users/me');
+    set({ isAuthenticated: true, user: userResponse.data.data });
+  },
+
+  clearSession: async () => {
+    await storage.clearTokens();
+    set({ isAuthenticated: false, user: null });
   },
 
   logout: async () => {
     try {
-      await client.post('/auth/logout');
+      const refreshToken = await storage.getRefreshToken();
+      if (refreshToken) {
+        await client.post('/auth/logout', { refresh_token: refreshToken });
+      }
     } catch {
       // Ignore errors - clear tokens anyway
     }
-    await storage.clearTokens();
-    set({ isAuthenticated: false, user: null });
+    await get().clearSession();
   },
 
   checkAuth: async () => {
@@ -451,7 +541,7 @@ export const authStore = create<AuthState>((set, get) => ({
       }
       
       const response = await client.get('/users/me');
-      set({ isAuthenticated: true, user: response.data, isLoading: false });
+      set({ isAuthenticated: true, user: response.data.data, isLoading: false });
     } catch {
       await storage.clearTokens();
       set({ isAuthenticated: false, user: null, isLoading: false });
@@ -465,10 +555,11 @@ export const authStore = create<AuthState>((set, get) => ({
 ### API Error Structure
 
 ```typescript
-interface ApiError {
-  code: string;           // Machine-readable code: 'INVALID_CREDENTIALS', 'RATE_LIMITED', etc.
-  message: string;        // Human-readable message
-  details?: Record<string, string[]>; // Field-level validation errors
+interface ApiErrorResponse {
+  error: {
+    code: string;         // 'BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', etc.
+    message: string;
+  };
 }
 ```
 
@@ -482,13 +573,11 @@ import { Alert } from 'react-native';
 export class ApiError extends Error {
   code: string;
   status: number;
-  details?: Record<string, string[]>;
 
-  constructor(error: AxiosError<{ code: string; message: string; details?: Record<string, string[]> }>) {
-    super(error.response?.data?.message ?? 'An error occurred');
-    this.code = error.response?.data?.code ?? 'UNKNOWN_ERROR';
+  constructor(error: AxiosError<ApiErrorResponse>) {
+    super(error.response?.data?.error?.message ?? 'An error occurred');
+    this.code = error.response?.data?.error?.code ?? 'INTERNAL_ERROR';
     this.status = error.response?.status ?? 500;
-    this.details = error.response?.data?.details;
   }
 }
 
@@ -497,17 +586,21 @@ export const handleApiError = (error: unknown): ApiError => {
     return new ApiError(error);
   }
   return new ApiError({
-    response: { data: { code: 'UNKNOWN_ERROR', message: String(error) }, status: 500 },
+    response: { data: { error: { code: 'INTERNAL_ERROR', message: String(error) } }, status: 500 },
   } as AxiosError);
 };
 
 // Show user-friendly error messages
 export const showErrorAlert = (error: ApiError) => {
   const messages: Record<string, string> = {
-    INVALID_CREDENTIALS: 'Invalid email or password',
-    RATE_LIMITED: 'Too many requests. Please wait a moment.',
-    NETWORK_ERROR: 'No internet connection',
-    SERVER_ERROR: 'Something went wrong. Please try again.',
+    BAD_REQUEST: 'Invalid request',
+    VALIDATION_FAILED: 'Please check the form fields',
+    UNAUTHORIZED: 'Please sign in again',
+    FORBIDDEN: 'You do not have access',
+    NOT_FOUND: 'Requested resource was not found',
+    CONFLICT: 'Request conflict. Please retry',
+    ACCOUNT_LOCKED: 'Account locked. Try again later',
+    INTERNAL_ERROR: 'Something went wrong. Please try again.',
   };
 
   Alert.alert('Error', messages[error.code] ?? error.message);
@@ -518,31 +611,66 @@ export const showErrorAlert = (error: ApiError) => {
 
 ```typescript
 // src/hooks/useLogs.ts
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { client } from '../api/client';
-import { handleApiError, showErrorAlert } from '../utils/errors';
+import { handleApiError, showErrorAlert, ApiError } from '../utils/errors';
+import type { LogsResponse } from '../api/types';
 
-export const useLogs = (projectId: string, filters: LogFilters) => {
+interface LogFilters {
+  start: string;
+  end?: string;
+  agent_id?: string;
+  level?: string;
+  levels?: string;
+  type?: string;
+  source?: string;
+  q?: string;
+  search_mode?: 'token' | 'substring' | 'phrase';
+}
+
+export const useLogs = (filters: LogFilters) => {
   return useInfiniteQuery({
-    queryKey: ['logs', projectId, filters],
+    queryKey: ['logs', filters],
     queryFn: async ({ pageParam }) => {
       try {
         const response = await client.get('/logs', {
-          params: { project_id: projectId, cursor: pageParam, ...filters },
+          params: { page: pageParam, ...filters },
         });
-        return response.data as PaginatedResponse<Log>;
+        return response.data.data as LogsResponse;
       } catch (error) {
         throw handleApiError(error);
       }
     },
-    getNextPageParam: (lastPage) => lastPage.cursor,
-    onError: (error) => {
-      if (error instanceof ApiError) {
-        showErrorAlert(error);
-      }
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
+    // TanStack Query v5: use meta for error handling or global QueryClient config
+    meta: {
+      onError: (error: unknown) => {
+        if (error instanceof ApiError) {
+          showErrorAlert(error);
+        }
+      },
     },
   });
 };
+
+// Alternative: Configure global error handler in QueryClient
+// src/utils/queryClient.ts
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ...
+    },
+    mutations: {
+      onError: (error) => {
+        if (error instanceof ApiError) {
+          showErrorAlert(error);
+        }
+      },
+    },
+  },
+});
 ```
 
 ## Offline Support
@@ -636,35 +764,60 @@ export const OfflineBanner = () => {
 ```typescript
 // src/hooks/useSSE.ts
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import Constants from 'expo-constants';
 import { storage } from '../utils/storage';
 import { useNetworkStatus } from './useNetworkStatus';
-import Constants from 'expo-constants';
+import type { Log } from '../api/types';
 
 interface UseSSEOptions {
-  projectId: string;
+  start?: string;
+  agent_id?: string;
   level?: string;
+  levels?: string;
+  type?: string;
+  source?: string;
+  q?: string;
+  search_mode?: 'token' | 'substring' | 'phrase';
   onLog: (log: Log) => void;
   onError?: (error: Error) => void;
   enabled?: boolean;
 }
 
-export const useSSE = ({ projectId, level, onLog, onError, enabled = true }: UseSSEOptions) => {
+export const useSSE = ({
+  start,
+  agent_id,
+  level,
+  levels,
+  type,
+  source,
+  q,
+  search_mode,
+  onLog,
+  onError,
+  enabled = true,
+}: UseSSEOptions) => {
   const [isConnected, setIsConnected] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
+  const retryCountRef = useRef(0);
   const { isOnline } = useNetworkStatus();
 
   const MAX_RETRIES = 10;
   const BASE_DELAY = 1000; // 1 second
   const MAX_DELAY = 30000; // 30 seconds
 
-  const getBackoffDelay = useCallback((retry: number): number => {
+  const getBackoffDelay = (retry: number): number => {
     // Exponential backoff with jitter
     const exponentialDelay = Math.min(BASE_DELAY * 2 ** retry, MAX_DELAY);
     const jitter = Math.random() * 0.3 * exponentialDelay;
     return exponentialDelay + jitter;
-  }, []);
+  };
+
+  const updateRetryCount = (count: number) => {
+    retryCountRef.current = count;
+    setRetryCount(count);
+  };
 
   const connect = useCallback(async () => {
     if (!enabled || !isOnline) return;
@@ -672,65 +825,74 @@ export const useSSE = ({ projectId, level, onLog, onError, enabled = true }: Use
     const token = await storage.getAccessToken();
     if (!token) return;
 
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     const baseUrl = Constants.expoConfig?.extra?.apiUrl;
-    const params = new URLSearchParams({ project_id: projectId });
-    if (level) params.append('level', level);
+    const params = new URLSearchParams();
+    params.set('start', start ?? new Date(Date.now() - 5 * 60 * 1000).toISOString());
+    if (agent_id) params.set('agent_id', agent_id);
+    if (level) params.set('level', level);
+    if (levels) params.set('levels', levels);
+    if (type) params.set('type', type);
+    if (source) params.set('source', source);
+    if (q) params.set('q', q);
+    if (search_mode) params.set('search_mode', search_mode);
 
-    // Note: React Native doesn't have native EventSource
-    // Use react-native-sse or polyfill
     const url = `${baseUrl}/api/v1/logs/stream?${params}`;
-    
-    const eventSource = new EventSource(url, {
+
+    await fetchEventSource(url, {
       headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
+      openWhenHidden: true,
+      onopen(response) {
+        if (!response.ok) {
+          throw new Error(`SSE failed: ${response.status}`);
+        }
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('text/event-stream')) {
+          throw new Error('SSE connection has invalid content type');
+        }
+        setIsConnected(true);
+        updateRetryCount(0);
+      },
+      onmessage(event) {
+        if (event.event === 'log') {
+          try {
+            const log = JSON.parse(event.data) as Log;
+            onLog(log);
+          } catch (e) {
+            console.error('Failed to parse log event:', e);
+          }
+        }
+        if (event.event === 'heartbeat') {
+          updateRetryCount(0);
+        }
+      },
+      onclose() {
+        setIsConnected(false);
+        throw new Error('SSE connection closed');
+      },
+      onerror(err) {
+        setIsConnected(false);
+        if (!isOnline || !enabled) {
+          return;
+        }
+        if (retryCountRef.current >= MAX_RETRIES) {
+          onError?.(err as Error);
+          throw err;
+        }
+        const delay = getBackoffDelay(retryCountRef.current);
+        updateRetryCount(retryCountRef.current + 1);
+        return delay;
+      },
     });
-
-    eventSource.addEventListener('log', (event: MessageEvent) => {
-      try {
-        const log = JSON.parse(event.data) as Log;
-        onLog(log);
-      } catch (e) {
-        console.error('Failed to parse log event:', e);
-      }
-    });
-
-    eventSource.addEventListener('heartbeat', () => {
-      // Reset retry count on successful heartbeat
-      setRetryCount(0);
-    });
-
-    eventSource.addEventListener('error', (event: Event) => {
-      setIsConnected(false);
-      eventSource.close();
-
-      if (retryCount < MAX_RETRIES) {
-        const delay = getBackoffDelay(retryCount);
-        console.log(`SSE reconnecting in ${delay}ms (attempt ${retryCount + 1})`);
-        
-        retryTimeoutRef.current = setTimeout(() => {
-          setRetryCount((prev) => prev + 1);
-          connect();
-        }, delay);
-      } else {
-        onError?.(new Error('SSE connection failed after max retries'));
-      }
-    });
-
-    eventSource.addEventListener('open', () => {
-      setIsConnected(true);
-      setRetryCount(0);
-    });
-
-    eventSourceRef.current = eventSource;
-  }, [enabled, isOnline, projectId, level, onLog, onError, retryCount, getBackoffDelay]);
+  }, [enabled, isOnline, start, agent_id, level, levels, type, source, q, search_mode, onLog, onError]);
 
   const disconnect = useCallback(() => {
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current);
-    }
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
+    controllerRef.current?.abort();
+    controllerRef.current = null;
     setIsConnected(false);
   }, []);
 
@@ -741,11 +903,14 @@ export const useSSE = ({ projectId, level, onLog, onError, enabled = true }: Use
 
   // Reconnect when coming back online
   useEffect(() => {
-    if (isOnline && enabled && !isConnected) {
-      setRetryCount(0);
+    if (!isOnline) {
+      disconnect();
+      return;
+    }
+    if (enabled && !isConnected) {
       connect();
     }
-  }, [isOnline, enabled, isConnected, connect]);
+  }, [isOnline, enabled, isConnected, connect, disconnect]);
 
   return { isConnected, retryCount, disconnect, reconnect: connect };
 };
@@ -758,12 +923,11 @@ export const useSSE = ({ projectId, level, onLog, onError, enabled = true }: Use
 import { useState, useCallback } from 'react';
 import { FlatList } from 'react-native';
 import { useSSE } from '../../hooks/useSSE';
-import { useProjectStore } from '../../store/projectStore';
 import { LogEntry } from '../../components/logs/LogEntry';
+import type { Log } from '../../api/types';
 
 export const LogStreamScreen = () => {
   const [logs, setLogs] = useState<Log[]>([]);
-  const { currentProjectId } = useProjectStore();
   const MAX_LOGS = 500; // Prevent memory issues
 
   const handleLog = useCallback((log: Log) => {
@@ -774,9 +938,8 @@ export const LogStreamScreen = () => {
   }, []);
 
   const { isConnected, retryCount } = useSSE({
-    projectId: currentProjectId,
+    start: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     onLog: handleLog,
-    enabled: !!currentProjectId,
   });
 
   return (
@@ -795,12 +958,56 @@ export const LogStreamScreen = () => {
 
 ## Deep Linking
 
+### Navigation Types
+
+```typescript
+// src/types/navigation.ts
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+export type LogStackParamList = {
+  LogList: undefined;
+  LogDetail: { logId: string };
+  LogStream: undefined;
+};
+
+export type AlertStackParamList = {
+  AlertList: undefined;
+  AlertDetail: { alertId: string };
+  AlertForm: { alertId?: string } | undefined;
+};
+
+export type SettingsStackParamList = {
+  Settings: undefined;
+  ChangePassword: undefined;
+  UserList: undefined;
+  UserDetail: { userId: string };
+};
+
+export type MainTabsParamList = {
+  Logs: NavigatorScreenParams<LogStackParamList>;
+  Alerts: NavigatorScreenParams<AlertStackParamList>;
+  Settings: NavigatorScreenParams<SettingsStackParamList>;
+};
+
+export type RootStackParamList = {
+  Main: NavigatorScreenParams<MainTabsParamList>;
+  Login: undefined;
+};
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+```
+
 ### Configuration
 
 ```typescript
 // src/navigation/linking.ts
 import { LinkingOptions } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
+import type { RootStackParamList } from '../types/navigation';
 
 const prefix = Linking.createURL('/');
 
@@ -824,7 +1031,14 @@ export const linking: LinkingOptions<RootStackParamList> = {
               AlertForm: 'alerts/new',
             },
           },
-          Settings: 'settings',
+          Settings: {
+            screens: {
+              Settings: 'settings',
+              ChangePassword: 'settings/password',
+              UserList: 'settings/users',
+              UserDetail: 'settings/users/:userId',
+            },
+          },
         },
       },
       Login: 'login',
@@ -844,16 +1058,28 @@ export const linking: LinkingOptions<RootStackParamList> = {
 
 ```typescript
 // src/navigation/RootNavigator.tsx
-import { NavigationContainer } from '@react-navigation/native';
-import { linking } from './linking';
-
 export const RootNavigator = () => {
   return (
-    <NavigationContainer linking={linking}>
-      {/* ... */}
-    </NavigationContainer>
+    <>
+      {/* stacks/tabs */}
+    </>
   );
 };
+```
+
+```typescript
+// App.tsx
+import { NavigationContainer } from '@react-navigation/native';
+import { linking } from './navigation/linking';
+import { RootNavigator } from './navigation/RootNavigator';
+
+export default function App() {
+  return (
+    <NavigationContainer linking={linking}>
+      <RootNavigator />
+    </NavigationContainer>
+  );
+}
 ```
 
 ## Push Notifications
@@ -865,6 +1091,8 @@ export const RootNavigator = () => {
 3. **APNs for iOS**: Configure in Apple Developer Console
 
 ### Registration
+
+Note: Registration requires `POST /users/me/push-token`.
 
 ```typescript
 // src/utils/notifications.ts
@@ -981,10 +1209,12 @@ describe('handleApiError', () => {
   it('should parse API error response', () => {
     const axiosError = {
       response: {
-        status: 400,
+        status: 401,
         data: {
-          code: 'INVALID_CREDENTIALS',
-          message: 'Invalid email or password',
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Unauthorized',
+          },
         },
       },
     } as AxiosError;
@@ -992,8 +1222,8 @@ describe('handleApiError', () => {
     const error = handleApiError(axiosError);
 
     expect(error).toBeInstanceOf(ApiError);
-    expect(error.code).toBe('INVALID_CREDENTIALS');
-    expect(error.status).toBe(400);
+    expect(error.code).toBe('UNAUTHORIZED');
+    expect(error.status).toBe(401);
   });
 });
 ```
@@ -1004,15 +1234,16 @@ describe('handleApiError', () => {
 // __tests__/components/LogEntry.test.tsx
 import { render, screen } from '@testing-library/react-native';
 import { LogEntry } from '../../src/components/logs/LogEntry';
+import type { Log } from '../../src/api/types';
 
 describe('LogEntry', () => {
   const mockLog: Log = {
     id: '123',
-    project_id: 'proj-1',
     level: 'error',
     message: 'Database connection failed',
     timestamp: '2024-01-15T10:30:00Z',
-    metadata: { host: 'db-1' },
+    source: 'db-1',
+    fields: { host: 'db-1' },
   };
 
   it('should render log message', () => {
@@ -1127,10 +1358,11 @@ Add to `package.json` scripts:
 8. [ ] Offline support
 9. [ ] Push notifications
 10. [ ] Deep linking
+11. [ ] Change password (current user)
+12. [ ] Admin user management + password reset
 
 ## Notes
 
 - Backend requires CORS headers for mobile web views (not added yet)
 - SSE streaming works via standard HTTP, no WebSocket needed
-- React Native doesn't have native EventSource - use `react-native-sse` package
-- For SSE with auth headers, may need custom implementation or `@microsoft/fetch-event-source`
+- React Native doesn't have native EventSource - standardize on `@microsoft/fetch-event-source` for auth headers and retry support

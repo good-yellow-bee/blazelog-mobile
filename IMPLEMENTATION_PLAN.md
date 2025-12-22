@@ -6,6 +6,17 @@ This document breaks down the implementation into small, atomic tasks suitable f
 
 ---
 
+## API Contract Assumptions
+
+- Responses are wrapped in a `data` envelope (e.g., `response.data.data`).
+- Login uses `username` + `password` and returns tokens only; fetch `/users/me` for profile.
+- Log queries use `page`/`per_page` pagination and require `start` (per OpenAPI).
+- Admin password resets use `PUT /users/{id}/password`, are restricted to lower roles, and cannot target the current admin.
+- `GET /logs/stream` supports `Authorization: Bearer <token>` headers for SSE.
+- Public "forgot password" flow is out of scope; only in-session change/reset endpoints are planned.
+
+---
+
 ## Phase 0: Project Setup
 
 ### P0-1: Initialize Expo Project
@@ -52,7 +63,7 @@ npx create-expo-app blazelog-mobile --template expo-template-blank-typescript
 **Description:** Install all required npm packages.
 ```bash
 npx expo install expo-secure-store expo-constants expo-notifications expo-device
-npm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers
+npm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers @microsoft/fetch-event-source
 npm install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs
 npx expo install react-native-screens react-native-safe-area-context
 ```
@@ -74,6 +85,7 @@ npx expo install react-native-screens react-native-safe-area-context
 - `src/screens/auth/`
 - `src/screens/logs/`
 - `src/screens/alerts/`
+- `src/screens/admin/`
 - `src/screens/projects/`
 - `src/screens/settings/`
 - `src/navigation/`
@@ -173,7 +185,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Acceptance Criteria:**
 - [ ] 401 triggers refresh attempt
 - [ ] Concurrent requests queue during refresh
-- [ ] Failed refresh clears tokens
+- [ ] Failed refresh clears session without calling logout API (avoid interceptor recursion)
 
 ---
 
@@ -201,13 +213,15 @@ npx expo install react-native-screens react-native-safe-area-context
 - `src/api/types.ts`
 
 **Types:**
-- `Log`
-- `Alert`
-- `AlertChannel`
-- `Project`
+- `ApiEnvelope<T>`
+- `LoginResponse`
 - `User`
-- `ProjectMembership`
-- `PaginatedResponse<T>`
+- `Log`
+- `LogsResponse`
+- `Alert`
+- `AlertCreate`
+- `AlertUpdate`
+- `Project`
 - `ApiErrorResponse`
 
 **Acceptance Criteria:**
@@ -222,11 +236,13 @@ npx expo install react-native-screens react-native-safe-area-context
 - `src/api/auth.ts`
 
 **Functions:**
-- `login(email, password)`
+- `login(username, password)`
 - `refresh(refreshToken)`
-- `logout()`
+- `logout(refreshToken)`
 
 **Acceptance Criteria:**
+- [ ] Login returns `LoginResponse` and stores tokens
+- [ ] Logout posts `refresh_token` in request body
 - [ ] All functions return typed responses
 
 ---
@@ -240,11 +256,14 @@ npx expo install react-native-screens react-native-safe-area-context
 **Functions:**
 - `getLogs(params)`
 - `getLog(id)`
-- `getLogStats(projectId)`
+- `getLogStats(params)`
 
 **Acceptance Criteria:**
-- [ ] Pagination params supported
-- [ ] Filter params supported
+- [ ] `start` is required in queries (RFC3339)
+- [ ] Pagination uses `page`/`per_page`
+- [ ] Filters align with OpenAPI (`agent_id`, `level(s)`, `type`, `source`, `q`, `search_mode`)
+- [ ] `getLog(id)` calls `GET /logs/{id}` and returns a typed `Log`
+- [ ] `getLogStats` supports `start`, `end`, `agent_id`, `type`, and `interval`
 
 ---
 
@@ -289,10 +308,17 @@ npx expo install react-native-screens react-native-safe-area-context
 
 **Functions:**
 - `getCurrentUser()`
+- `changePassword(currentPassword, newPassword)`
+- `listUsers()` (admin only)
+- `getUser(id)` (admin only)
+- `resetUserPassword(id, password)` (admin only)
 - `registerPushToken(token, platform)`
 
 **Acceptance Criteria:**
 - [ ] Returns typed User
+- [ ] `changePassword` calls `/users/me/password`
+- [ ] `resetUserPassword` calls `/users/{id}/password` and enforces role + self-reset rules in UI
+- [ ] `registerPushToken` posts to `/users/me/push-token`
 
 ---
 
@@ -310,13 +336,16 @@ npx expo install react-native-screens react-native-safe-area-context
 - `user`
 
 **Actions:**
-- `login(email, password)`
+- `login(username, password)`
 - `logout()`
+- `clearSession()`
 - `checkAuth()`
 
 **Acceptance Criteria:**
 - [ ] Persists auth state check on app start
 - [ ] Clears state on logout
+- [ ] `clearSession()` used when refresh fails to avoid interceptor loops
+- [ ] Profile fetched via `/users/me` after login
 
 ---
 
@@ -410,6 +439,7 @@ npx expo install react-native-screens react-native-safe-area-context
 - `MainTabParamList`
 - `LogStackParamList`
 - `AlertStackParamList`
+- `SettingsStackParamList`
 
 **Acceptance Criteria:**
 - [ ] All screens have typed params
@@ -448,8 +478,26 @@ npx expo install react-native-screens react-native-safe-area-context
 
 ---
 
-### P3-4: Create Main Tab Navigator
-**Dependencies:** P3-2, P3-3
+### P3-4: Create Settings Stack Navigator
+**Dependencies:** P3-1
+**Description:** Stack navigator for settings and admin screens.
+**Files to create:**
+- `src/navigation/SettingsStack.tsx`
+
+**Screens:**
+- SettingsScreen
+- ChangePasswordScreen
+- UserListScreen (admin only)
+- UserDetailScreen (admin only)
+
+**Acceptance Criteria:**
+- [ ] Navigation between settings screens works
+- [ ] Admin-only screens are gated by role
+
+---
+
+### P3-5: Create Main Tab Navigator
+**Dependencies:** P3-2, P3-3, P3-4
 **Description:** Bottom tab navigator.
 **Files to create:**
 - `src/navigation/MainTabs.tsx`
@@ -457,7 +505,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Tabs:**
 - Logs (LogStack)
 - Alerts (AlertStack)
-- Settings
+- Settings (SettingsStack)
 
 **Acceptance Criteria:**
 - [ ] Tabs switch correctly
@@ -465,8 +513,8 @@ npx expo install react-native-screens react-native-safe-area-context
 
 ---
 
-### P3-5: Create Root Navigator
-**Dependencies:** P2-1, P3-4
+### P3-6: Create Root Navigator
+**Dependencies:** P2-1, P3-5
 **Description:** Root navigator with auth check.
 **Files to create:**
 - `src/navigation/RootNavigator.tsx`
@@ -478,11 +526,12 @@ npx expo install react-native-screens react-native-safe-area-context
 
 **Acceptance Criteria:**
 - [ ] Redirects based on auth state
+- [ ] RootNavigator does not create `NavigationContainer`
 
 ---
 
-### P3-6: Configure Deep Linking
-**Dependencies:** P3-5
+### P3-7: Configure Deep Linking
+**Dependencies:** P3-6
 **Description:** Set up deep link configuration.
 **Files to create:**
 - `src/navigation/linking.ts`
@@ -492,14 +541,18 @@ npx expo install react-native-screens react-native-safe-area-context
 - `blazelog://logs/:logId`
 - `blazelog://alerts`
 - `blazelog://alerts/:alertId`
+- `blazelog://settings`
+- `blazelog://settings/password`
+- `blazelog://settings/users`
+- `blazelog://settings/users/:userId`
 
 **Acceptance Criteria:**
 - [ ] Deep links open correct screens
 
 ---
 
-### P3-7: Integrate Navigation in App.tsx
-**Dependencies:** P3-5, P3-6, P2-5
+### P3-8: Integrate Navigation in App.tsx
+**Dependencies:** P3-6, P3-7, P2-5
 **Description:** Set up NavigationContainer with providers.
 **Files to modify:**
 - `App.tsx`
@@ -511,6 +564,7 @@ npx expo install react-native-screens react-native-safe-area-context
 
 **Acceptance Criteria:**
 - [ ] App renders with navigation
+- [ ] `NavigationContainer` wraps `RootNavigator` and uses linking config
 
 ---
 
@@ -613,7 +667,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Colors:**
 - debug: gray
 - info: blue
-- warn: yellow
+- warning: yellow
 - error: red
 - fatal: purple
 
@@ -653,6 +707,7 @@ npx expo install react-native-screens react-native-safe-area-context
 
 **Acceptance Criteria:**
 - [ ] Filters update callback on change
+- [ ] Date range provides a required `start` value for API queries
 
 ---
 
@@ -697,10 +752,9 @@ npx expo install react-native-screens react-native-safe-area-context
 
 **Elements:**
 - Logo
-- Email input
+- Username input
 - Password input
 - Login button
-- Forgot password link
 
 **Acceptance Criteria:**
 - [ ] Keyboard avoiding view
@@ -715,7 +769,7 @@ npx expo install react-native-screens react-native-safe-area-context
 - `src/screens/auth/LoginScreen.tsx`
 
 **Validation:**
-- Email: required, valid format
+- Username: required
 - Password: required, min 8 chars
 
 **Acceptance Criteria:**
@@ -736,18 +790,6 @@ npx expo install react-native-screens react-native-safe-area-context
 
 ---
 
-### P5-4: Create Forgot Password Screen
-**Dependencies:** P4-1, P4-2
-**Description:** Password reset request form.
-**Files to create:**
-- `src/screens/auth/ForgotPasswordScreen.tsx`
-
-**Acceptance Criteria:**
-- [ ] Email input with validation
-- [ ] Success message on submit
-
----
-
 ## Phase 6: Log Screens
 
 ### P6-1: Create useLogsQuery Hook
@@ -757,12 +799,13 @@ npx expo install react-native-screens react-native-safe-area-context
 - `src/hooks/useLogs.ts`
 
 **Features:**
-- Infinite query for pagination
-- Filter parameters
+- Infinite query for pagination (page/per_page)
+- Required `start` parameter in filters
+- Filter parameters from OpenAPI (agent_id, level(s), type, source, q, search_mode)
 - Error handling
 
 **Acceptance Criteria:**
-- [ ] Returns paginated data
+- [ ] Returns `LogsResponse` from `response.data.data`
 - [ ] Supports refetch
 
 ---
@@ -793,11 +836,12 @@ npx expo install react-native-screens react-native-safe-area-context
 **Features:**
 - Filter bar
 - Log list
-- Project context
+- Time range context
 
 **Acceptance Criteria:**
 - [ ] Filters update list
 - [ ] Navigation to detail
+- [ ] Default time range provided if user has not selected one
 
 ---
 
@@ -816,6 +860,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Acceptance Criteria:**
 - [ ] Metadata is collapsible
 - [ ] Can copy log ID
+- [ ] Screen can render from navigation params when provided to avoid refetch
 
 ---
 
@@ -829,10 +874,13 @@ npx expo install react-native-screens react-native-safe-area-context
 - Connect with auth token
 - Exponential backoff retry
 - Network status awareness
+- Use `@microsoft/fetch-event-source` for auth headers and retries
+- Default `start` parameter to recent window if not provided
 
 **Acceptance Criteria:**
 - [ ] Reconnects on disconnect
 - [ ] Stops on unmount
+- [ ] Uses `@microsoft/fetch-event-source` instead of native `EventSource`
 
 ---
 
@@ -918,11 +966,13 @@ npx expo install react-native-screens react-native-safe-area-context
 **Fields:**
 - Name
 - Description
-- Level (picker)
-- Threshold
-- Time window
-- Search filter
-- Channels (multi-select)
+- Type (error_rate | log_match | threshold)
+- Condition (expression string)
+- Severity (info | warning | critical)
+- Window (duration)
+- Cooldown (duration)
+- Notify channels (multi-select)
+- Enabled toggle
 
 **Acceptance Criteria:**
 - [ ] Works for create and edit
@@ -970,12 +1020,52 @@ npx expo install react-native-screens react-native-safe-area-context
 - Theme toggle
 - Notification toggle
 - Current project (tap to switch)
+- Change password
 - Logout button
 - App version
 
 **Acceptance Criteria:**
 - [ ] Settings persist
 - [ ] Logout clears auth
+
+---
+
+### P8-4: Create Change Password Screen
+**Dependencies:** P1-11, P4-1, P4-2
+**Description:** Allow current user to change their password.
+**Files to create:**
+- `src/screens/settings/ChangePasswordScreen.tsx`
+
+**Fields:**
+- Current password
+- New password
+- Confirm new password
+
+**Acceptance Criteria:**
+- [ ] Calls `/users/me/password` with `current_password` and `new_password`
+- [ ] Shows success confirmation
+- [ ] Validates min length and confirmation match
+
+---
+
+### P8-5: Create Admin User Management Screen
+**Dependencies:** P1-11, P4-3, P4-1
+**Description:** Admin-only user list with reset password action.
+**Files to create:**
+- `src/screens/admin/UserListScreen.tsx`
+- `src/screens/admin/UserDetailScreen.tsx`
+
+**Features:**
+- List users with role and email
+- Reset password action for lower-role users (not self)
+  - UI note: treat "self" as `targetUserId === currentUser.id` from `/users/me`
+
+**Acceptance Criteria:**
+- [ ] Uses `/users` and `/users/{id}` to load user data
+- [ ] Calls `/users/{id}/password` to reset passwords
+- [ ] UI only allows resetting users with lower roles
+- [ ] UI prevents resetting the current user's password
+- [ ] Non-admin users cannot access these screens
 
 ---
 
@@ -1130,6 +1220,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Acceptance Criteria:**
 - [ ] Error parsing tested
 - [ ] Message mapping tested
+- [ ] Error shape matches `ApiErrorResponse` (`error.code`, `error.message`)
 
 ---
 
@@ -1229,17 +1320,17 @@ eas build --platform android
 | 0 | 7 | Project Setup |
 | 1 | 11 | API Layer |
 | 2 | 6 | State Management |
-| 3 | 7 | Navigation |
+| 3 | 8 | Navigation |
 | 4 | 11 | UI Components |
-| 5 | 4 | Authentication |
+| 5 | 3 | Authentication |
 | 6 | 6 | Log Screens |
 | 7 | 4 | Alert Screens |
-| 8 | 3 | Project & Settings |
+| 8 | 5 | Project & Settings |
 | 9 | 3 | Offline & Network |
 | 10 | 4 | Push Notifications |
 | 11 | 7 | Testing |
 | 12 | 4 | Polish & Release |
-| **Total** | **77** | |
+| **Total** | **79** | |
 
 ---
 
