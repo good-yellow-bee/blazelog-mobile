@@ -41,14 +41,14 @@
       "title": "Install Core Dependencies",
       "labels": ["phase:0-setup"],
       "dependencies": ["P0-1"],
-      "body": "Install all required npm packages.\n\n**Commands:**\n```bash\nnpx expo install expo-secure-store expo-constants expo-notifications expo-device\nnpm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers\nnpm install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs\nnpx expo install react-native-screens react-native-safe-area-context\n```\n\n**Acceptance Criteria:**\n- [ ] All packages installed\n- [ ] No peer dependency conflicts"
+      "body": "Install all required npm packages.\n\n**Commands:**\n```bash\nnpx expo install expo-secure-store expo-constants expo-notifications expo-device\nnpm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers @microsoft/fetch-event-source\nnpm install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs\nnpx expo install react-native-screens react-native-safe-area-context\n```\n\n**Acceptance Criteria:**\n- [ ] All packages installed\n- [ ] No peer dependency conflicts"
     },
     {
       "id": "P0-5",
       "title": "Create Folder Structure",
       "labels": ["phase:0-setup"],
       "dependencies": ["P0-4"],
-      "body": "Create empty folder structure per ARCHITECTURE.md.\n\n**Folders to create:**\n- `src/api/`\n- `src/components/ui/`\n- `src/components/logs/`\n- `src/components/alerts/`\n- `src/components/common/`\n- `src/screens/auth/`\n- `src/screens/logs/`\n- `src/screens/alerts/`\n- `src/screens/projects/`\n- `src/screens/settings/`\n- `src/navigation/`\n- `src/store/`\n- `src/hooks/`\n- `src/utils/`\n- `src/theme/`\n- `src/types/`\n\n**Acceptance Criteria:**\n- [ ] All folders exist\n- [ ] Each folder has an `index.ts` for exports"
+      "body": "Create empty folder structure per ARCHITECTURE.md.\n\n**Folders to create:**\n- `src/api/`\n- `src/components/ui/`\n- `src/components/logs/`\n- `src/components/alerts/`\n- `src/components/common/`\n- `src/screens/auth/`\n- `src/screens/logs/`\n- `src/screens/alerts/`\n- `src/screens/admin/`\n- `src/screens/projects/`\n- `src/screens/settings/`\n- `src/navigation/`\n- `src/store/`\n- `src/hooks/`\n- `src/utils/`\n- `src/theme/`\n- `src/types/`\n\n**Acceptance Criteria:**\n- [ ] All folders exist\n- [ ] Each folder has an `index.ts` for exports"
     },
     {
       "id": "P0-6",
@@ -90,35 +90,35 @@
       "title": "Add Response Interceptor for Token Refresh",
       "labels": ["phase:1-api"],
       "dependencies": ["P1-3"],
-      "body": "Handle 401 responses with automatic token refresh.\n\n**Files to modify:**\n- `src/api/client.ts`\n\n**Acceptance Criteria:**\n- [ ] 401 triggers refresh attempt\n- [ ] Concurrent requests queue during refresh\n- [ ] Failed refresh clears tokens"
+      "body": "Handle 401 responses with automatic token refresh.\n\n**Files to modify:**\n- `src/api/client.ts`\n\n**Acceptance Criteria:**\n- [ ] 401 triggers refresh attempt\n- [ ] Concurrent requests queue during refresh\n- [ ] Failed refresh clears session without calling logout API (avoid interceptor recursion)"
     },
     {
       "id": "P1-5",
       "title": "Create API Error Handler",
       "labels": ["phase:1-api"],
       "dependencies": ["P1-1"],
-      "body": "Implement error parsing and user-friendly messages.\n\n**Files to create:**\n- `src/utils/errors.ts`\n\n**Classes/Functions:**\n- `ApiError` class\n- `handleApiError(error)`\n- `showErrorAlert(error)`\n\n**Acceptance Criteria:**\n- [ ] Parses API error response\n- [ ] Maps error codes to messages"
+      "body": "Implement error parsing and user-friendly messages.\n\n**Files to create:**\n- `src/utils/errors.ts`\n\n**Classes/Functions:**\n- `ApiError` class\n- `handleApiError(error)`\n- `showErrorAlert(error)`\n\n**Acceptance Criteria:**\n- [ ] Parses API error response with `error.code` and `error.message`\n- [ ] Maps error codes to messages"
     },
     {
       "id": "P1-6",
       "title": "Create API Types from Schema",
       "labels": ["phase:1-api"],
       "dependencies": ["P0-5"],
-      "body": "Define TypeScript interfaces for API responses.\n\n**Files to create:**\n- `src/api/types.ts`\n\n**Types:**\n- `Log`\n- `Alert`\n- `AlertChannel`\n- `Project`\n- `User`\n- `ProjectMembership`\n- `PaginatedResponse<T>`\n- `ApiErrorResponse`\n\n**Acceptance Criteria:**\n- [ ] All types match ARCHITECTURE.md schemas"
+      "body": "Define TypeScript interfaces for API responses.\n\n**Files to create:**\n- `src/api/types.ts`\n\n**Types:**\n- `ApiEnvelope<T>`\n- `LoginResponse`\n- `User`\n- `Log`\n- `LogsResponse`\n- `Alert`\n- `AlertCreate`\n- `AlertUpdate`\n- `Project`\n- `ApiErrorResponse`\n\n**Acceptance Criteria:**\n- [ ] All types match ARCHITECTURE.md schemas"
     },
     {
       "id": "P1-7",
       "title": "Create Auth API Functions",
       "labels": ["phase:1-api"],
       "dependencies": ["P1-1", "P1-6"],
-      "body": "Implement auth endpoint functions.\n\n**Files to create:**\n- `src/api/auth.ts`\n\n**Functions:**\n- `login(email, password)`\n- `refresh(refreshToken)`\n- `logout()`\n\n**Acceptance Criteria:**\n- [ ] All functions return typed responses"
+      "body": "Implement auth endpoint functions.\n\n**Files to create:**\n- `src/api/auth.ts`\n\n**Functions:**\n- `login(username, password)`\n- `refresh(refreshToken)`\n- `logout(refreshToken)`\n\n**Acceptance Criteria:**\n- [ ] Login returns `LoginResponse` and stores tokens\n- [ ] Logout posts `refresh_token` in request body\n- [ ] All functions return typed responses"
     },
     {
       "id": "P1-8",
       "title": "Create Logs API Functions",
       "labels": ["phase:1-api"],
       "dependencies": ["P1-1", "P1-6"],
-      "body": "Implement log endpoint functions.\n\n**Files to create:**\n- `src/api/logs.ts`\n\n**Functions:**\n- `getLogs(params)`\n- `getLog(id)`\n- `getLogStats(projectId)`\n\n**Acceptance Criteria:**\n- [ ] Pagination params supported\n- [ ] Filter params supported"
+      "body": "Implement log endpoint functions.\n\n**Files to create:**\n- `src/api/logs.ts`\n\n**Functions:**\n- `getLogs(params)`\n- `getLog(id)`\n- `getLogStats(params)`\n\n**Acceptance Criteria:**\n- [ ] `start` is required in queries (RFC3339)\n- [ ] Pagination uses `page`/`per_page`\n- [ ] Filters align with OpenAPI (`agent_id`, `level(s)`, `type`, `source`, `q`, `search_mode`)\n- [ ] `getLog(id)` calls `GET /logs/{id}` and returns a typed `Log`\n- [ ] `getLogStats` supports `start`, `end`, `agent_id`, `type`, and `interval`"
     },
     {
       "id": "P1-9",
@@ -139,14 +139,14 @@
       "title": "Create Users API Functions",
       "labels": ["phase:1-api"],
       "dependencies": ["P1-1", "P1-6"],
-      "body": "Implement user endpoint functions.\n\n**Files to create:**\n- `src/api/users.ts`\n\n**Functions:**\n- `getCurrentUser()`\n- `registerPushToken(token, platform)`\n\n**Acceptance Criteria:**\n- [ ] Returns typed User"
+      "body": "Implement user endpoint functions.\n\n**Files to create:**\n- `src/api/users.ts`\n\n**Functions:**\n- `getCurrentUser()`\n- `changePassword(currentPassword, newPassword)`\n- `listUsers()` (admin only)\n- `getUser(id)` (admin only)\n- `resetUserPassword(id, password)` (admin only)\n- `registerPushToken(token, platform)`\n\n**Acceptance Criteria:**\n- [ ] Returns typed User\n- [ ] `changePassword` calls `/users/me/password`\n- [ ] `resetUserPassword` calls `/users/{id}/password` and enforces role + self-reset rules in UI\n- [ ] `registerPushToken` posts to `/users/me/push-token`"
     },
     {
       "id": "P2-1",
       "title": "Create Auth Store",
       "labels": ["phase:2-state"],
       "dependencies": ["P1-2", "P1-7"],
-      "body": "Implement Zustand store for auth state.\n\n**Files to create:**\n- `src/store/authStore.ts`\n\n**State:**\n- `isAuthenticated`\n- `isLoading`\n- `user`\n\n**Actions:**\n- `login(email, password)`\n- `logout()`\n- `checkAuth()`\n\n**Acceptance Criteria:**\n- [ ] Persists auth state check on app start\n- [ ] Clears state on logout"
+      "body": "Implement Zustand store for auth state.\n\n**Files to create:**\n- `src/store/authStore.ts`\n\n**State:**\n- `isAuthenticated`\n- `isLoading`\n- `user`\n\n**Actions:**\n- `login(username, password)`\n- `logout()`\n- `clearSession()`\n- `checkAuth()`\n\n**Acceptance Criteria:**\n- [ ] Persists auth state check on app start\n- [ ] Clears state on logout\n- [ ] `clearSession()` used when refresh fails to avoid interceptor loops\n- [ ] Profile fetched via `/users/me` after login"
     },
     {
       "id": "P2-2",
@@ -188,7 +188,7 @@
       "title": "Define Navigation Types",
       "labels": ["phase:3-nav"],
       "dependencies": ["P0-5"],
-      "body": "Create TypeScript types for navigation params.\n\n**Files to create:**\n- `src/types/navigation.ts`\n\n**Types:**\n- `RootStackParamList`\n- `MainTabParamList`\n- `LogStackParamList`\n- `AlertStackParamList`\n\n**Acceptance Criteria:**\n- [ ] All screens have typed params"
+      "body": "Create TypeScript types for navigation params.\n\n**Files to create:**\n- `src/types/navigation.ts`\n\n**Types:**\n- `RootStackParamList`\n- `MainTabParamList`\n- `LogStackParamList`\n- `AlertStackParamList`\n- `SettingsStackParamList`\n\n**Acceptance Criteria:**\n- [ ] All screens have typed params"
     },
     {
       "id": "P3-2",
@@ -206,31 +206,38 @@
     },
     {
       "id": "P3-4",
-      "title": "Create Main Tab Navigator",
+      "title": "Create Settings Stack Navigator",
       "labels": ["phase:3-nav"],
-      "dependencies": ["P3-2", "P3-3"],
-      "body": "Bottom tab navigator.\n\n**Files to create:**\n- `src/navigation/MainTabs.tsx`\n\n**Tabs:**\n- Logs (LogStack)\n- Alerts (AlertStack)\n- Settings\n\n**Acceptance Criteria:**\n- [ ] Tabs switch correctly\n- [ ] Icons displayed"
+      "dependencies": ["P3-1"],
+      "body": "Stack navigator for settings and admin screens.\n\n**Files to create:**\n- `src/navigation/SettingsStack.tsx`\n\n**Screens:**\n- SettingsScreen\n- ChangePasswordScreen\n- UserListScreen (admin only)\n- UserDetailScreen (admin only)\n\n**Acceptance Criteria:**\n- [ ] Navigation between settings screens works\n- [ ] Admin-only screens are gated by role"
     },
     {
       "id": "P3-5",
-      "title": "Create Root Navigator",
+      "title": "Create Main Tab Navigator",
       "labels": ["phase:3-nav"],
-      "dependencies": ["P2-1", "P3-4"],
-      "body": "Root navigator with auth check.\n\n**Files to create:**\n- `src/navigation/RootNavigator.tsx`\n\n**Logic:**\n- Show Login if not authenticated\n- Show MainTabs if authenticated\n- Show loading during auth check\n\n**Acceptance Criteria:**\n- [ ] Redirects based on auth state"
+      "dependencies": ["P3-2", "P3-3", "P3-4"],
+      "body": "Bottom tab navigator.\n\n**Files to create:**\n- `src/navigation/MainTabs.tsx`\n\n**Tabs:**\n- Logs (LogStack)\n- Alerts (AlertStack)\n- Settings (SettingsStack)\n\n**Acceptance Criteria:**\n- [ ] Tabs switch correctly\n- [ ] Icons displayed"
     },
     {
       "id": "P3-6",
-      "title": "Configure Deep Linking",
+      "title": "Create Root Navigator",
       "labels": ["phase:3-nav"],
-      "dependencies": ["P3-5"],
-      "body": "Set up deep link configuration.\n\n**Files to create:**\n- `src/navigation/linking.ts`\n\n**URL patterns:**\n- `blazelog://logs`\n- `blazelog://logs/:logId`\n- `blazelog://alerts`\n- `blazelog://alerts/:alertId`\n\n**Acceptance Criteria:**\n- [ ] Deep links open correct screens"
+      "dependencies": ["P2-1", "P3-5"],
+      "body": "Root navigator with auth check.\n\n**Files to create:**\n- `src/navigation/RootNavigator.tsx`\n\n**Logic:**\n- Show Login if not authenticated\n- Show MainTabs if authenticated\n- Show loading during auth check\n\n**Acceptance Criteria:**\n- [ ] Redirects based on auth state\n- [ ] RootNavigator does not create `NavigationContainer`"
     },
     {
       "id": "P3-7",
+      "title": "Configure Deep Linking",
+      "labels": ["phase:3-nav"],
+      "dependencies": ["P3-6"],
+      "body": "Set up deep link configuration.\n\n**Files to create:**\n- `src/navigation/linking.ts`\n\n**URL patterns:**\n- `blazelog://logs`\n- `blazelog://logs/:logId`\n- `blazelog://alerts`\n- `blazelog://alerts/:alertId`\n- `blazelog://settings`\n- `blazelog://settings/password`\n- `blazelog://settings/users`\n- `blazelog://settings/users/:userId`\n\n**Acceptance Criteria:**\n- [ ] Deep links open correct screens"
+    },
+    {
+      "id": "P3-8",
       "title": "Integrate Navigation in App.tsx",
       "labels": ["phase:3-nav"],
-      "dependencies": ["P3-5", "P3-6", "P2-5"],
-      "body": "Set up NavigationContainer with providers.\n\n**Files to modify:**\n- `App.tsx`\n\n**Providers to add:**\n- QueryClientProvider\n- PaperProvider\n- NavigationContainer\n\n**Acceptance Criteria:**\n- [ ] App renders with navigation"
+      "dependencies": ["P3-6", "P3-7", "P2-5"],
+      "body": "Set up NavigationContainer with providers.\n\n**Files to modify:**\n- `App.tsx`\n\n**Providers to add:**\n- QueryClientProvider\n- PaperProvider\n- NavigationContainer\n\n**Acceptance Criteria:**\n- [ ] App renders with navigation\n- [ ] `NavigationContainer` wraps `RootNavigator` and uses linking config"
     },
     {
       "id": "P4-1",
@@ -279,7 +286,7 @@
       "title": "Create LogLevelBadge Component",
       "labels": ["phase:4-ui"],
       "dependencies": ["P0-7"],
-      "body": "Colored badge for log levels.\n\n**Files to create:**\n- `src/components/logs/LogLevelBadge.tsx`\n\n**Colors:**\n- debug: gray\n- info: blue\n- warn: yellow\n- error: red\n- fatal: purple\n\n**Acceptance Criteria:**\n- [ ] Each level has distinct color"
+      "body": "Colored badge for log levels.\n\n**Files to create:**\n- `src/components/logs/LogLevelBadge.tsx`\n\n**Colors:**\n- debug: gray\n- info: blue\n- warning: yellow\n- error: red\n- fatal: purple\n\n**Acceptance Criteria:**\n- [ ] Each level has distinct color"
     },
     {
       "id": "P4-8",
@@ -293,7 +300,7 @@
       "title": "Create LogFilter Component",
       "labels": ["phase:4-ui"],
       "dependencies": ["P4-1"],
-      "body": "Filter bar for log list.\n\n**Files to create:**\n- `src/components/logs/LogFilter.tsx`\n\n**Filters:**\n- Level (multi-select chips)\n- Date range\n- Search text\n\n**Acceptance Criteria:**\n- [ ] Filters update callback on change"
+      "body": "Filter bar for log list.\n\n**Files to create:**\n- `src/components/logs/LogFilter.tsx`\n\n**Filters:**\n- Level (multi-select chips)\n- Date range\n- Search text\n\n**Acceptance Criteria:**\n- [ ] Filters update callback on change\n- [ ] Date range provides a required `start` value for API queries"
     },
     {
       "id": "P4-10",
@@ -314,14 +321,14 @@
       "title": "Create Login Screen Layout",
       "labels": ["phase:5-auth"],
       "dependencies": ["P4-1", "P4-2"],
-      "body": "Login form UI without logic.\n\n**Files to create:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Elements:**\n- Logo\n- Email input\n- Password input\n- Login button\n- Forgot password link\n\n**Acceptance Criteria:**\n- [ ] Keyboard avoiding view\n- [ ] Inputs styled"
+      "body": "Login form UI without logic.\n\n**Files to create:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Elements:**\n- Logo\n- Username input\n- Password input\n- Login button\n\n**Acceptance Criteria:**\n- [ ] Keyboard avoiding view\n- [ ] Inputs styled"
     },
     {
       "id": "P5-2",
       "title": "Add Login Form Validation",
       "labels": ["phase:5-auth"],
       "dependencies": ["P5-1"],
-      "body": "Add react-hook-form with Zod validation.\n\n**Files to modify:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Validation:**\n- Email: required, valid format\n- Password: required, min 8 chars\n\n**Acceptance Criteria:**\n- [ ] Errors display on blur\n- [ ] Submit disabled if invalid"
+      "body": "Add react-hook-form with Zod validation.\n\n**Files to modify:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Validation:**\n- Username: required\n- Password: required, min 8 chars\n\n**Acceptance Criteria:**\n- [ ] Errors display on blur\n- [ ] Submit disabled if invalid"
     },
     {
       "id": "P5-3",
@@ -331,18 +338,11 @@
       "body": "Wire up login form to auth store.\n\n**Files to modify:**\n- `src/screens/auth/LoginScreen.tsx`\n\n**Acceptance Criteria:**\n- [ ] Successful login navigates to main\n- [ ] Error shows alert"
     },
     {
-      "id": "P5-4",
-      "title": "Create Forgot Password Screen",
-      "labels": ["phase:5-auth"],
-      "dependencies": ["P4-1", "P4-2"],
-      "body": "Password reset request form.\n\n**Files to create:**\n- `src/screens/auth/ForgotPasswordScreen.tsx`\n\n**Acceptance Criteria:**\n- [ ] Email input with validation\n- [ ] Success message on submit"
-    },
-    {
       "id": "P6-1",
       "title": "Create useLogsQuery Hook",
       "labels": ["phase:6-logs"],
       "dependencies": ["P1-8", "P2-5"],
-      "body": "TanStack Query hook for fetching logs.\n\n**Files to create:**\n- `src/hooks/useLogs.ts`\n\n**Features:**\n- Infinite query for pagination\n- Filter parameters\n- Error handling\n\n**Acceptance Criteria:**\n- [ ] Returns paginated data\n- [ ] Supports refetch"
+      "body": "TanStack Query hook for fetching logs.\n\n**Files to create:**\n- `src/hooks/useLogs.ts`\n\n**Features:**\n- Infinite query for pagination (page/per_page)\n- Required `start` parameter in filters\n- Filter parameters from OpenAPI (agent_id, level(s), type, source, q, search_mode)\n- Error handling\n\n**Acceptance Criteria:**\n- [ ] Returns `LogsResponse` from `response.data.data`\n- [ ] Supports refetch"
     },
     {
       "id": "P6-2",
@@ -356,21 +356,21 @@
       "title": "Create Log List Screen",
       "labels": ["phase:6-logs"],
       "dependencies": ["P6-2", "P4-9"],
-      "body": "Main log viewing screen.\n\n**Files to create:**\n- `src/screens/logs/LogListScreen.tsx`\n\n**Features:**\n- Filter bar\n- Log list\n- Project context\n\n**Acceptance Criteria:**\n- [ ] Filters update list\n- [ ] Navigation to detail"
+      "body": "Main log viewing screen.\n\n**Files to create:**\n- `src/screens/logs/LogListScreen.tsx`\n\n**Features:**\n- Filter bar\n- Log list\n- Time range context\n\n**Acceptance Criteria:**\n- [ ] Filters update list\n- [ ] Navigation to detail\n- [ ] Default time range provided if user has not selected one"
     },
     {
       "id": "P6-4",
       "title": "Create Log Detail Screen",
       "labels": ["phase:6-logs"],
       "dependencies": ["P4-7", "P1-8"],
-      "body": "Full log entry view.\n\n**Files to create:**\n- `src/screens/logs/LogDetailScreen.tsx`\n\n**Displays:**\n- All log fields\n- Formatted timestamp\n- Expandable metadata JSON\n- Copy button\n\n**Acceptance Criteria:**\n- [ ] Metadata is collapsible\n- [ ] Can copy log ID"
+      "body": "Full log entry view.\n\n**Files to create:**\n- `src/screens/logs/LogDetailScreen.tsx`\n\n**Displays:**\n- All log fields\n- Formatted timestamp\n- Expandable metadata JSON\n- Copy button\n\n**Acceptance Criteria:**\n- [ ] Metadata is collapsible\n- [ ] Can copy log ID\n- [ ] Screen can render from navigation params when provided to avoid refetch"
     },
     {
       "id": "P6-5",
       "title": "Create useSSE Hook",
       "labels": ["phase:6-logs"],
       "dependencies": ["P1-2"],
-      "body": "SSE connection hook with reconnection.\n\n**Files to create:**\n- `src/hooks/useSSE.ts`\n\n**Features:**\n- Connect with auth token\n- Exponential backoff retry\n- Network status awareness\n\n**Acceptance Criteria:**\n- [ ] Reconnects on disconnect\n- [ ] Stops on unmount"
+      "body": "SSE connection hook with reconnection.\n\n**Files to create:**\n- `src/hooks/useSSE.ts`\n\n**Features:**\n- Connect with auth token\n- Exponential backoff retry\n- Network status awareness\n- Use `@microsoft/fetch-event-source` for auth headers and retries\n- Default `start` parameter to recent window if not provided\n\n**Acceptance Criteria:**\n- [ ] Reconnects on disconnect\n- [ ] Stops on unmount\n- [ ] Uses `@microsoft/fetch-event-source` instead of native `EventSource`"
     },
     {
       "id": "P6-6",
@@ -405,7 +405,7 @@
       "title": "Create Alert Form Screen",
       "labels": ["phase:7-alerts"],
       "dependencies": ["P7-1", "P4-1", "P4-2"],
-      "body": "Create/edit alert form.\n\n**Files to create:**\n- `src/screens/alerts/AlertFormScreen.tsx`\n\n**Fields:**\n- Name\n- Description\n- Level (picker)\n- Threshold\n- Time window\n- Search filter\n- Channels (multi-select)\n\n**Acceptance Criteria:**\n- [ ] Works for create and edit\n- [ ] Validates required fields"
+      "body": "Create/edit alert form.\n\n**Files to create:**\n- `src/screens/alerts/AlertFormScreen.tsx`\n\n**Fields:**\n- Name\n- Description\n- Type (error_rate | log_match | threshold)\n- Condition (expression string)\n- Severity (info | warning | critical)\n- Window (duration)\n- Cooldown (duration)\n- Notify channels (multi-select)\n- Enabled toggle\n\n**Acceptance Criteria:**\n- [ ] Works for create and edit\n- [ ] Validates required fields"
     },
     {
       "id": "P8-1",
@@ -426,7 +426,21 @@
       "title": "Create Settings Screen",
       "labels": ["phase:8-settings"],
       "dependencies": ["P2-3", "P2-1"],
-      "body": "App settings and preferences.\n\n**Files to create:**\n- `src/screens/settings/SettingsScreen.tsx`\n\n**Options:**\n- Theme toggle\n- Notification toggle\n- Current project (tap to switch)\n- Logout button\n- App version\n\n**Acceptance Criteria:**\n- [ ] Settings persist\n- [ ] Logout clears auth"
+      "body": "App settings and preferences.\n\n**Files to create:**\n- `src/screens/settings/SettingsScreen.tsx`\n\n**Options:**\n- Theme toggle\n- Notification toggle\n- Current project (tap to switch)\n- Change password\n- Logout button\n- App version\n\n**Acceptance Criteria:**\n- [ ] Settings persist\n- [ ] Logout clears auth"
+    },
+    {
+      "id": "P8-4",
+      "title": "Create Change Password Screen",
+      "labels": ["phase:8-settings"],
+      "dependencies": ["P1-11", "P4-1", "P4-2"],
+      "body": "Allow current user to change their password.\n\n**Files to create:**\n- `src/screens/settings/ChangePasswordScreen.tsx`\n\n**Fields:**\n- Current password\n- New password\n- Confirm new password\n\n**Acceptance Criteria:**\n- [ ] Calls `/users/me/password` with `current_password` and `new_password`\n- [ ] Shows success confirmation\n- [ ] Validates min length and confirmation match"
+    },
+    {
+      "id": "P8-5",
+      "title": "Create Admin User Management Screen",
+      "labels": ["phase:8-settings"],
+      "dependencies": ["P1-11", "P4-3", "P4-1"],
+      "body": "Admin-only user list with reset password action.\n\n**Files to create:**\n- `src/screens/admin/UserListScreen.tsx`\n- `src/screens/admin/UserDetailScreen.tsx`\n\n**Features:**\n- List users with role and email\n- Reset password action for lower-role users (not self)\n  - UI note: treat \"self\" as `targetUserId === currentUser.id` from `/users/me`\n\n**Acceptance Criteria:**\n- [ ] Uses `/users` and `/users/{id}` to load user data\n- [ ] Calls `/users/{id}/password` to reset passwords\n- [ ] UI only allows resetting users with lower roles\n- [ ] UI prevents resetting the current user's password\n- [ ] Non-admin users cannot access these screens"
     },
     {
       "id": "P9-1",
@@ -467,7 +481,7 @@
       "id": "P10-3",
       "title": "Handle Notification Taps",
       "labels": ["phase:10-push"],
-      "dependencies": ["P10-1", "P3-5"],
+      "dependencies": ["P10-1", "P3-6"],
       "body": "Navigate on notification tap.\n\n**Files to modify:**\n- `App.tsx`\n\n**Behavior:**\n- Alert notification → AlertDetailScreen\n\n**Acceptance Criteria:**\n- [ ] Tapping notification opens correct screen"
     },
     {
@@ -503,7 +517,7 @@
       "title": "Write API Error Handler Tests",
       "labels": ["phase:11-test"],
       "dependencies": ["P11-1", "P1-5"],
-      "body": "Unit tests for error handling.\n\n**Files to create:**\n- `__tests__/utils/errors.test.ts`\n\n**Acceptance Criteria:**\n- [ ] Error parsing tested\n- [ ] Message mapping tested"
+      "body": "Unit tests for error handling.\n\n**Files to create:**\n- `__tests__/utils/errors.test.ts`\n\n**Acceptance Criteria:**\n- [ ] Error parsing tested\n- [ ] Message mapping tested\n- [ ] Error shape matches `ApiErrorResponse` (`error.code`, `error.message`)"
     },
     {
       "id": "P11-5",
