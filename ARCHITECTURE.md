@@ -152,6 +152,10 @@ Note: The OpenAPI does not include `project_id` for logs; access is scoped by au
 
 Returns aggregated counts by time buckets and filters.
 
+#### `GET /logs/{id}` - Get log by ID
+
+Returns a single log entry by ID.
+
 #### `GET /logs/stream` - SSE real-time stream
 
 **Query Parameters:**
@@ -178,6 +182,7 @@ Returns aggregated counts by time buckets and filters.
 - `GET/POST /users` - List/create users (admin only)
 - `GET/PUT/DELETE /users/{id}` - User management (admin only)
 - `PUT /users/{id}/password` - Reset user password (admin only; lower roles only; cannot reset own password)
+- `POST /users/me/push-token` - Register device push token
 
 ### Alerts
 - `GET/POST /alerts` - Alert management
@@ -197,10 +202,6 @@ Returns aggregated counts by time buckets and filters.
 
 ### Health
 - `GET /health` - Health check
-
-### Planned Additions (Not in OpenAPI Yet)
-- `GET /logs/:id` - Fetch a log by ID
-- `POST /users/me/push-token` - Register device push token
 
 ## Response Schemas
 
@@ -1091,7 +1092,7 @@ export default function App() {
 
 ### Registration
 
-Note: Registration requires `POST /users/me/push-token` (planned addition).
+Note: Registration requires `POST /users/me/push-token`.
 
 ```typescript
 // src/utils/notifications.ts

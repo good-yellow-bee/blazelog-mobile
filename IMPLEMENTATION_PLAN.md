@@ -12,7 +12,6 @@ This document breaks down the implementation into small, atomic tasks suitable f
 - Login uses `username` + `password` and returns tokens only; fetch `/users/me` for profile.
 - Log queries use `page`/`per_page` pagination and require `start` (per OpenAPI).
 - Admin password resets use `PUT /users/{id}/password`, are restricted to lower roles, and cannot target the current admin.
-- Current OpenAPI does not include `GET /logs/:id` or `POST /users/me/push-token`; plan assumes backend additions or UX adjustments.
 - `GET /logs/stream` supports `Authorization: Bearer <token>` headers for SSE.
 - Public "forgot password" flow is out of scope; only in-session change/reset endpoints are planned.
 
@@ -263,7 +262,7 @@ npx expo install react-native-screens react-native-safe-area-context
 - [ ] `start` is required in queries (RFC3339)
 - [ ] Pagination uses `page`/`per_page`
 - [ ] Filters align with OpenAPI (`agent_id`, `level(s)`, `type`, `source`, `q`, `search_mode`)
-- [ ] `getLog(id)` calls `GET /logs/:id` and returns a typed `Log` (planned endpoint)
+- [ ] `getLog(id)` calls `GET /logs/{id}` and returns a typed `Log`
 - [ ] `getLogStats` supports `start`, `end`, `agent_id`, `type`, and `interval`
 
 ---
@@ -313,7 +312,7 @@ npx expo install react-native-screens react-native-safe-area-context
 - `listUsers()` (admin only)
 - `getUser(id)` (admin only)
 - `resetUserPassword(id, password)` (admin only)
-- `registerPushToken(token, platform)` (planned endpoint)
+- `registerPushToken(token, platform)`
 
 **Acceptance Criteria:**
 - [ ] Returns typed User
@@ -861,7 +860,7 @@ npx expo install react-native-screens react-native-safe-area-context
 **Acceptance Criteria:**
 - [ ] Metadata is collapsible
 - [ ] Can copy log ID
-- [ ] If `/logs/:id` is unavailable, screen can render from navigation params
+- [ ] Screen can render from navigation params when provided to avoid refetch
 
 ---
 
