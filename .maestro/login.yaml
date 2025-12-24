@@ -1,0 +1,26 @@
+appId: com.blazelog.mobile
+---
+# Login Flow E2E Test
+- launchApp
+
+# Wait for login screen
+- assertVisible: "Username"
+- assertVisible: "Password"
+- assertVisible: "Sign In"
+
+# Enter credentials
+- tapOn: "Username"
+- inputText: ${TEST_USERNAME}
+- tapOn: "Password"
+- inputText: ${TEST_PASSWORD}
+
+# Submit form
+- tapOn: "Sign In"
+
+# Verify login success - should see main tabs
+- assertVisible:
+    text: "Logs"
+    timeout: 10000
+
+# Verify we're on the logs screen
+- assertVisible: "Settings"

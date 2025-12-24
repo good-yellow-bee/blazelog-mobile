@@ -1,18 +1,18 @@
 {
   "labels": [
-    {"name": "phase:0-setup", "color": "FBCA04", "description": "Project setup tasks"},
-    {"name": "phase:1-api", "color": "0E8A16", "description": "API layer tasks"},
-    {"name": "phase:2-state", "color": "1D76DB", "description": "State management tasks"},
-    {"name": "phase:3-nav", "color": "D93F0B", "description": "Navigation tasks"},
-    {"name": "phase:4-ui", "color": "5319E7", "description": "UI component tasks"},
-    {"name": "phase:5-auth", "color": "006B75", "description": "Authentication tasks"},
-    {"name": "phase:6-logs", "color": "B60205", "description": "Log screen tasks"},
-    {"name": "phase:7-alerts", "color": "FBCA04", "description": "Alert screen tasks"},
-    {"name": "phase:8-settings", "color": "0E8A16", "description": "Settings tasks"},
-    {"name": "phase:9-offline", "color": "1D76DB", "description": "Offline support tasks"},
-    {"name": "phase:10-push", "color": "D93F0B", "description": "Push notification tasks"},
-    {"name": "phase:11-test", "color": "5319E7", "description": "Testing tasks"},
-    {"name": "phase:12-release", "color": "006B75", "description": "Release tasks"}
+    { "name": "phase:0-setup", "color": "FBCA04", "description": "Project setup tasks" },
+    { "name": "phase:1-api", "color": "0E8A16", "description": "API layer tasks" },
+    { "name": "phase:2-state", "color": "1D76DB", "description": "State management tasks" },
+    { "name": "phase:3-nav", "color": "D93F0B", "description": "Navigation tasks" },
+    { "name": "phase:4-ui", "color": "5319E7", "description": "UI component tasks" },
+    { "name": "phase:5-auth", "color": "006B75", "description": "Authentication tasks" },
+    { "name": "phase:6-logs", "color": "B60205", "description": "Log screen tasks" },
+    { "name": "phase:7-alerts", "color": "FBCA04", "description": "Alert screen tasks" },
+    { "name": "phase:8-settings", "color": "0E8A16", "description": "Settings tasks" },
+    { "name": "phase:9-offline", "color": "1D76DB", "description": "Offline support tasks" },
+    { "name": "phase:10-push", "color": "D93F0B", "description": "Push notification tasks" },
+    { "name": "phase:11-test", "color": "5319E7", "description": "Testing tasks" },
+    { "name": "phase:12-release", "color": "006B75", "description": "Release tasks" }
   ],
   "issues": [
     {
@@ -313,7 +313,18 @@
       "id": "P4-11",
       "title": "Create UI Components Index",
       "labels": ["phase:4-ui"],
-      "dependencies": ["P4-1", "P4-2", "P4-3", "P4-4", "P4-5", "P4-6", "P4-7", "P4-8", "P4-9", "P4-10"],
+      "dependencies": [
+        "P4-1",
+        "P4-2",
+        "P4-3",
+        "P4-4",
+        "P4-5",
+        "P4-6",
+        "P4-7",
+        "P4-8",
+        "P4-9",
+        "P4-10"
+      ],
       "body": "Barrel exports for components.\n\n**Files to create:**\n- `src/components/ui/index.ts`\n- `src/components/common/index.ts`\n- `src/components/logs/index.ts`\n- `src/components/alerts/index.ts`\n\n**Acceptance Criteria:**\n- [ ] All components exported"
     },
     {

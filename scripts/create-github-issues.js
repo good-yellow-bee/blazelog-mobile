@@ -23,7 +23,7 @@ const path = require('path');
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const labelsOnly = args.includes('--labels-only');
-const phaseArg = args.find(a => a.startsWith('--phase='));
+const phaseArg = args.find((a) => a.startsWith('--phase='));
 const targetPhase = phaseArg ? phaseArg.split('=')[1] : null;
 
 const dataPath = path.join(__dirname, '..', 'github-issues.json');
@@ -56,16 +56,15 @@ function createIssues() {
   console.log('\n=== Creating Issues ===\n');
 
   const issues = targetPhase
-    ? data.issues.filter(i => i.id.startsWith(`P${targetPhase}-`))
+    ? data.issues.filter((i) => i.id.startsWith(`P${targetPhase}-`))
     : data.issues;
 
   console.log(`Creating ${issues.length} issues...`);
 
   for (const issue of issues) {
     const labels = issue.labels.join(',');
-    const deps = issue.dependencies.length > 0
-      ? `\n\n**Dependencies:** ${issue.dependencies.join(', ')}`
-      : '';
+    const deps =
+      issue.dependencies.length > 0 ? `\n\n**Dependencies:** ${issue.dependencies.join(', ')}` : '';
     const body = issue.body + deps;
 
     // Use heredoc for body to handle special characters
