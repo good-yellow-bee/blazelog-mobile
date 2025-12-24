@@ -17,3 +17,4 @@ export {
   useChangePassword,
   useResetUserPassword,
 } from './useUsers';
+export { useNetworkStatus } from './useNetworkStatus';

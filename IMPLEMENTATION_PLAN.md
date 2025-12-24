@@ -1300,9 +1300,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 9: Offline & Network
+## Phase 9: Offline & Network ✅
 
-### P9-1: Create Network Status Hook
+### P9-1: Create Network Status Hook ✅
 
 **Dependencies:** P0-4
 **Description:** Hook to monitor network state.
@@ -1319,11 +1319,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Updates on network change
+- [x] Updates on network change
 
 ---
 
-### P9-2: Integrate Offline Banner
+### P9-2: Integrate Offline Banner ✅
 
 **Dependencies:** P4-6, P9-1
 **Description:** Show banner when offline.
@@ -1333,12 +1333,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Banner appears when offline
-- [ ] Disappears when online
+- [x] Banner appears when offline
+- [x] Disappears when online
 
 ---
 
-### P9-3: Configure Offline Query Behavior
+### P9-3: Configure Offline Query Behavior ✅
 
 **Dependencies:** P2-6, P9-1
 **Description:** Adjust query behavior when offline.
@@ -1353,8 +1353,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Cached data shows when offline
-- [ ] No network errors when offline
+- [x] Cached data shows when offline
+- [x] No network errors when offline
 
 ---
 
