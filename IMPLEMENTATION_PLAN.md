@@ -1098,9 +1098,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 7: Alert Screens
+## Phase 7: Alert Screens ✅
 
-### P7-1: Create useAlertsQuery Hook
+### P7-1: Create useAlertsQuery Hook ✅
 
 **Dependencies:** P1-9, P2-5
 **Description:** TanStack Query hooks for alerts.
@@ -1118,11 +1118,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Mutations invalidate queries
+- [x] Mutations invalidate queries
 
 ---
 
-### P7-2: Create Alert List Screen
+### P7-2: Create Alert List Screen ✅
 
 **Dependencies:** P7-1, P4-10
 **Description:** List of project alerts.
@@ -1138,12 +1138,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Toggle updates alert
-- [ ] Navigate to detail/edit
+- [x] Toggle updates alert
+- [x] Navigate to detail/edit
 
 ---
 
-### P7-3: Create Alert Detail Screen
+### P7-3: Create Alert Detail Screen ✅
 
 **Dependencies:** P7-1
 **Description:** View alert details.
@@ -1160,12 +1160,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Delete shows confirmation
-- [ ] Edit navigates to form
+- [x] Delete shows confirmation
+- [x] Edit navigates to form
 
 ---
 
-### P7-4: Create Alert Form Screen
+### P7-4: Create Alert Form Screen ✅
 
 **Dependencies:** P7-1, P4-1, P4-2
 **Description:** Create/edit alert form.
@@ -1187,8 +1187,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Works for create and edit
-- [ ] Validates required fields
+- [x] Works for create and edit
+- [x] Validates required fields
 
 ---
 

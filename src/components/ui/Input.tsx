@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { StyleSheet, ViewStyle, TextInput as RNTextInput } from 'react-native';
+import { StyleSheet, StyleProp, ViewStyle, TextInput as RNTextInput } from 'react-native';
 import { TextInput, useTheme, HelperText } from 'react-native-paper';
 
 interface InputProps {
@@ -14,7 +14,7 @@ interface InputProps {
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   onSubmitEditing?: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
