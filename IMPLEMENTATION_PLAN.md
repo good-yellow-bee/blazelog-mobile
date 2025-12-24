@@ -153,9 +153,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 1: API Layer
+## Phase 1: API Layer ✅
 
-### P1-1: Create Axios Client Instance
+### P1-1: Create Axios Client Instance ✅
 
 **Dependencies:** P0-6
 **Description:** Set up base Axios instance with base URL and timeout.
@@ -165,13 +165,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Client configured with base URL from env
-- [ ] 10s timeout set
-- [ ] Exports `client` instance
+- [x] Client configured with base URL from env
+- [x] 10s timeout set
+- [x] Exports `client` instance
 
 ---
 
-### P1-2: Create Secure Storage Helpers
+### P1-2: Create Secure Storage Helpers ✅
 
 **Dependencies:** P0-4
 **Description:** Implement token storage using expo-secure-store.
@@ -189,12 +189,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All functions implemented
-- [ ] TypeScript types correct
+- [x] All functions implemented
+- [x] TypeScript types correct
 
 ---
 
-### P1-3: Add Request Interceptor for Auth Header
+### P1-3: Add Request Interceptor for Auth Header ✅
 
 **Dependencies:** P1-1, P1-2
 **Description:** Add Axios request interceptor to attach Bearer token.
@@ -204,12 +204,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Token attached to Authorization header
-- [ ] Requests without token still work
+- [x] Token attached to Authorization header
+- [x] Requests without token still work
 
 ---
 
-### P1-4: Add Response Interceptor for Token Refresh
+### P1-4: Add Response Interceptor for Token Refresh ✅
 
 **Dependencies:** P1-3
 **Description:** Handle 401 responses with automatic token refresh.
@@ -219,13 +219,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] 401 triggers refresh attempt
-- [ ] Concurrent requests queue during refresh
-- [ ] Failed refresh clears session without calling logout API (avoid interceptor recursion)
+- [x] 401 triggers refresh attempt
+- [x] Concurrent requests queue during refresh
+- [x] Failed refresh clears session without calling logout API (avoid interceptor recursion)
 
 ---
 
-### P1-5: Create API Error Handler
+### P1-5: Create API Error Handler ✅
 
 **Dependencies:** P1-1
 **Description:** Implement error parsing and user-friendly messages.
@@ -241,12 +241,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Parses API error response
-- [ ] Maps error codes to messages
+- [x] Parses API error response
+- [x] Maps error codes to messages
 
 ---
 
-### P1-6: Create API Types from Schema
+### P1-6: Create API Types from Schema ✅
 
 **Dependencies:** P0-5
 **Description:** Define TypeScript interfaces for API responses.
@@ -269,11 +269,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All types match ARCHITECTURE.md schemas
+- [x] All types match ARCHITECTURE.md schemas
 
 ---
 
-### P1-7: Create Auth API Functions
+### P1-7: Create Auth API Functions ✅
 
 **Dependencies:** P1-1, P1-6
 **Description:** Implement auth endpoint functions.
@@ -289,13 +289,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Login returns `LoginResponse` and stores tokens
-- [ ] Logout posts `refresh_token` in request body
-- [ ] All functions return typed responses
+- [x] Login returns `LoginResponse` and stores tokens
+- [x] Logout posts `refresh_token` in request body
+- [x] All functions return typed responses
 
 ---
 
-### P1-8: Create Logs API Functions
+### P1-8: Create Logs API Functions ✅
 
 **Dependencies:** P1-1, P1-6
 **Description:** Implement log endpoint functions.
@@ -311,15 +311,15 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] `start` is required in queries (RFC3339)
-- [ ] Pagination uses `page`/`per_page`
-- [ ] Filters align with OpenAPI (`agent_id`, `level(s)`, `type`, `source`, `q`, `search_mode`)
-- [ ] `getLog(id)` calls `GET /logs/{id}` and returns a typed `Log`
-- [ ] `getLogStats` supports `start`, `end`, `agent_id`, `type`, and `interval`
+- [x] `start` is required in queries (RFC3339)
+- [x] Pagination uses `page`/`per_page`
+- [x] Filters align with OpenAPI (`agent_id`, `level(s)`, `type`, `source`, `q`, `search_mode`)
+- [x] `getLog(id)` calls `GET /logs/{id}` and returns a typed `Log`
+- [x] `getLogStats` supports `start`, `end`, `agent_id`, `type`, and `interval`
 
 ---
 
-### P1-9: Create Alerts API Functions
+### P1-9: Create Alerts API Functions ✅
 
 **Dependencies:** P1-1, P1-6
 **Description:** Implement alert CRUD functions.
@@ -337,11 +337,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All CRUD operations implemented
+- [x] All CRUD operations implemented
 
 ---
 
-### P1-10: Create Projects API Functions
+### P1-10: Create Projects API Functions ✅
 
 **Dependencies:** P1-1, P1-6
 **Description:** Implement project endpoint functions.
@@ -356,11 +356,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Returns typed Project array
+- [x] Returns typed Project array
 
 ---
 
-### P1-11: Create Users API Functions
+### P1-11: Create Users API Functions ✅
 
 **Dependencies:** P1-1, P1-6
 **Description:** Implement user endpoint functions.
@@ -379,10 +379,10 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Returns typed User
-- [ ] `changePassword` calls `/users/me/password`
-- [ ] `resetUserPassword` calls `/users/{id}/password` and enforces role + self-reset rules in UI
-- [ ] `registerPushToken` posts to `/users/me/push-token`
+- [x] Returns typed User
+- [x] `changePassword` calls `/users/me/password`
+- [x] `resetUserPassword` calls `/users/{id}/password` and enforces role + self-reset rules in UI
+- [x] `registerPushToken` posts to `/users/me/push-token`
 
 ---
 
