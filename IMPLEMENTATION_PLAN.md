@@ -903,9 +903,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 5: Authentication Screens
+## Phase 5: Authentication Screens ✅
 
-### P5-1: Create Login Screen Layout
+### P5-1: Create Login Screen Layout ✅
 
 **Dependencies:** P4-1, P4-2
 **Description:** Login form UI without logic.
@@ -922,12 +922,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Keyboard avoiding view
-- [ ] Inputs styled
+- [x] Keyboard avoiding view
+- [x] Inputs styled
 
 ---
 
-### P5-2: Add Login Form Validation
+### P5-2: Add Login Form Validation ✅
 
 **Dependencies:** P5-1
 **Description:** Add react-hook-form with Zod validation.
@@ -942,12 +942,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Errors display on blur
-- [ ] Submit disabled if invalid
+- [x] Errors display on blur
+- [x] Submit disabled if invalid
 
 ---
 
-### P5-3: Connect Login to Auth Store
+### P5-3: Connect Login to Auth Store ✅
 
 **Dependencies:** P5-2, P2-1
 **Description:** Wire up login form to auth store.
@@ -957,8 +957,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Successful login navigates to main
-- [ ] Error shows alert
+- [x] Successful login navigates to main
+- [x] Error shows alert
 
 ---
 
