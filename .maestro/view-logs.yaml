@@ -1,0 +1,43 @@
+appId: com.blazelog.mobile
+---
+# View Logs E2E Test (includes login)
+- launchApp
+
+# Login first
+- assertVisible: "Username"
+- tapOn: "Username"
+- inputText: ${TEST_USERNAME}
+- tapOn: "Password"
+- inputText: ${TEST_PASSWORD}
+- tapOn: "Sign In"
+
+# Wait for main screen
+- assertVisible:
+    text: "Logs"
+    timeout: 10000
+
+# Verify logs tab is active
+- assertVisible: "Logs"
+
+# Wait for logs to load (or empty state)
+- extendedWaitUntil:
+    visible:
+      anyOf:
+        - "No logs"
+        - id: "log-entry-.*"
+    timeout: 15000
+
+# If logs exist, tap on first log to view details
+- runFlow:
+    when:
+      visible:
+        id: "log-entry-.*"
+    commands:
+      - tapOn:
+          id: "log-entry-.*"
+          index: 0
+      # Verify detail screen elements
+      - assertVisible: "Copy Message"
+      # Go back
+      - tapOn:
+          id: "back-button"
