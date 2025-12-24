@@ -1,5 +1,12 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, View, FlatList, RefreshControl, ListRenderItem, Pressable } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  RefreshControl,
+  ListRenderItem,
+  Pressable,
+} from 'react-native';
 import { Text, useTheme, Chip, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import type { SettingsStackScreenProps } from '@/types/navigation';
@@ -49,9 +56,7 @@ export const UserListScreen = () => {
             <View style={styles.itemHeader}>
               <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
                 {item.username}
-                {isSelf && (
-                  <Text style={{ color: theme.colors.onSurfaceVariant }}> (you)</Text>
-                )}
+                {isSelf && <Text style={{ color: theme.colors.onSurfaceVariant }}> (you)</Text>}
               </Text>
               <Chip
                 style={[styles.roleChip, { backgroundColor: roleStyle.bg }]}

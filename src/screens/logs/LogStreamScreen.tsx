@@ -4,7 +4,7 @@ import { Text, useTheme, IconButton, Chip, Banner } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import type { LogStackScreenProps } from '@/types/navigation';
-import { LogEntry, LogLevelBadge } from '@/components/logs';
+import { LogEntry } from '@/components/logs';
 import { useSSE } from '@/hooks/useSSE';
 import type { Log, LogLevel } from '@/api/types';
 
@@ -23,7 +23,6 @@ export const LogStreamScreen = () => {
     isConnecting,
     error,
     connect,
-    disconnect,
     clearLogs,
   } = useSSE({
     levels: selectedLevels,
@@ -33,7 +32,9 @@ export const LogStreamScreen = () => {
   // Update display logs when not paused
   useEffect(() => {
     if (!isPaused) {
-      setDisplayLogs(streamLogs);
+      // Schedule update to avoid synchronous setState in render
+      const id = requestAnimationFrame(() => setDisplayLogs(streamLogs));
+      return () => cancelAnimationFrame(id);
     }
   }, [streamLogs, isPaused]);
 
@@ -50,9 +51,7 @@ export const LogStreamScreen = () => {
 
   const handleLevelToggle = (level: LogLevel) => {
     setSelectedLevels((prev) =>
-      prev.includes(level)
-        ? prev.filter((l) => l !== level)
-        : [...prev, level]
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
     clearLogs();
   };
@@ -84,22 +83,14 @@ export const LogStreamScreen = () => {
         </>
       ) : isConnected ? (
         <>
-          <MaterialCommunityIcons
-            name="antenna"
-            size={48}
-            color={theme.colors.primary}
-          />
+          <MaterialCommunityIcons name="antenna" size={48} color={theme.colors.primary} />
           <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
             Waiting for logs...
           </Text>
         </>
       ) : (
         <>
-          <MaterialCommunityIcons
-            name="wifi-off"
-            size={48}
-            color={theme.colors.error}
-          />
+          <MaterialCommunityIcons name="wifi-off" size={48} color={theme.colors.error} />
           <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
             Not connected
           </Text>
@@ -113,9 +104,7 @@ export const LogStreamScreen = () => {
       {error && (
         <Banner
           visible
-          actions={[
-            { label: 'Reconnect', onPress: handleReconnect },
-          ]}
+          actions={[{ label: 'Reconnect', onPress: handleReconnect }]}
           icon={({ size }) => (
             <MaterialCommunityIcons name="alert" size={size} color={theme.colors.error} />
           )}
@@ -134,8 +123,8 @@ export const LogStreamScreen = () => {
                   backgroundColor: isConnected
                     ? '#2ea043'
                     : isConnecting
-                    ? '#d29922'
-                    : theme.colors.error,
+                      ? '#d29922'
+                      : theme.colors.error,
                 },
               ]}
             />
@@ -193,10 +182,7 @@ export const LogStreamScreen = () => {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ListEmptyComponent={renderEmpty}
-        contentContainerStyle={[
-          styles.content,
-          displayLogs.length === 0 && styles.emptyContent,
-        ]}
+        contentContainerStyle={[styles.content, displayLogs.length === 0 && styles.emptyContent]}
         inverted={false}
       />
 

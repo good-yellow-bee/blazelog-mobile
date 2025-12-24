@@ -41,36 +41,36 @@ export type RootStackParamList = {
 };
 
 // Screen props helpers
-export type RootStackScreenProps<T extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, T>;
+export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;
 
-export type MainTabScreenProps<T extends keyof MainTabParamList> =
-  CompositeScreenProps<
-    BottomTabScreenProps<MainTabParamList, T>,
-    RootStackScreenProps<keyof RootStackParamList>
-  >;
+export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, T>,
+  RootStackScreenProps<keyof RootStackParamList>
+>;
 
-export type LogStackScreenProps<T extends keyof LogStackParamList> =
-  CompositeScreenProps<
-    NativeStackScreenProps<LogStackParamList, T>,
-    MainTabScreenProps<keyof MainTabParamList>
-  >;
+export type LogStackScreenProps<T extends keyof LogStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<LogStackParamList, T>,
+  MainTabScreenProps<keyof MainTabParamList>
+>;
 
-export type AlertStackScreenProps<T extends keyof AlertStackParamList> =
-  CompositeScreenProps<
-    NativeStackScreenProps<AlertStackParamList, T>,
-    MainTabScreenProps<keyof MainTabParamList>
-  >;
+export type AlertStackScreenProps<T extends keyof AlertStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<AlertStackParamList, T>,
+  MainTabScreenProps<keyof MainTabParamList>
+>;
 
-export type SettingsStackScreenProps<T extends keyof SettingsStackParamList> =
-  CompositeScreenProps<
-    NativeStackScreenProps<SettingsStackParamList, T>,
-    MainTabScreenProps<keyof MainTabParamList>
-  >;
+export type SettingsStackScreenProps<T extends keyof SettingsStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<SettingsStackParamList, T>,
+  MainTabScreenProps<keyof MainTabParamList>
+>;
 
-// Declare global navigation types
+// Declare global navigation types for React Navigation
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface RootParamList extends RootStackParamList {}
   }
 }

@@ -21,11 +21,7 @@ export const AlertStack = () => {
         },
       }}
     >
-      <Stack.Screen
-        name="AlertList"
-        component={AlertListScreen}
-        options={{ title: 'Alerts' }}
-      />
+      <Stack.Screen name="AlertList" component={AlertListScreen} options={{ title: 'Alerts' }} />
       <Stack.Screen
         name="AlertDetail"
         component={AlertDetailScreen}

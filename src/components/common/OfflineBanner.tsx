@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 interface OfflineBannerProps {
@@ -8,20 +8,13 @@ interface OfflineBannerProps {
 }
 
 export const OfflineBanner = ({ visible }: OfflineBannerProps) => {
-  const theme = useTheme();
-
   if (!visible) {
     return null;
   }
 
   return (
     <View style={[styles.banner, { backgroundColor: '#d29922' }]}>
-      <MaterialCommunityIcons
-        name="wifi-off"
-        size={16}
-        color="#0d1117"
-        style={styles.icon}
-      />
+      <MaterialCommunityIcons name="wifi-off" size={16} color="#0d1117" style={styles.icon} />
       <Text style={styles.text}>You are offline</Text>
     </View>
   );

@@ -13,8 +13,12 @@ export const SettingsScreen = () => {
   const navigation = useNavigation<SettingsStackScreenProps<'Settings'>['navigation']>();
   const { logout } = useAuthStore();
   const { currentProjectId } = useProjectStore();
-  const { theme: themeMode, setTheme, notificationsEnabled, setNotificationsEnabled } =
-    useSettingsStore();
+  const {
+    theme: themeMode,
+    setTheme,
+    notificationsEnabled,
+    setNotificationsEnabled,
+  } = useSettingsStore();
   const { data: currentUser } = useCurrentUser();
   const { data: currentProject } = useProjectQuery(currentProjectId || '', !!currentProjectId);
 
@@ -149,9 +153,7 @@ export const SettingsScreen = () => {
             <List.Item
               title="Logout"
               titleStyle={{ color: theme.colors.error }}
-              left={(props) => (
-                <List.Icon {...props} icon="logout" color={theme.colors.error} />
-              )}
+              left={(props) => <List.Icon {...props} icon="logout" color={theme.colors.error} />}
               style={[styles.item, { backgroundColor: theme.colors.surface }]}
             />
           </Pressable>

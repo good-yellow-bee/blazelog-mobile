@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { StyleSheet, StyleProp, ViewStyle, TextInput as RNTextInput } from 'react-native';
-import { TextInput, useTheme, HelperText } from 'react-native-paper';
+import { TextInput, HelperText } from 'react-native-paper';
 
 interface InputProps {
   label: string;
@@ -41,7 +41,6 @@ export const Input = forwardRef<RNTextInput, InputProps>(
     },
     ref
   ) => {
-    const theme = useTheme();
     const [showPassword, setShowPassword] = React.useState(false);
 
     return (

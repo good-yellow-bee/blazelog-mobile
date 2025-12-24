@@ -85,10 +85,7 @@ export const LogList = ({
       }
       ListFooterComponent={renderFooter}
       ListEmptyComponent={renderEmpty}
-      contentContainerStyle={[
-        styles.content,
-        logs.length === 0 && styles.emptyContent,
-      ]}
+      contentContainerStyle={[styles.content, logs.length === 0 && styles.emptyContent]}
       style={{ backgroundColor: theme.colors.background }}
     />
   );

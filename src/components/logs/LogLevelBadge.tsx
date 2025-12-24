@@ -21,9 +21,7 @@ export const LogLevelBadge = ({ level, style }: LogLevelBadgeProps) => {
 
   return (
     <View style={[styles.badge, { backgroundColor: colors.bg }, style]}>
-      <Text style={[styles.text, { color: colors.text }]}>
-        {level.toUpperCase()}
-      </Text>
+      <Text style={[styles.text, { color: colors.text }]}>{level.toUpperCase()}</Text>
     </View>
   );
 };

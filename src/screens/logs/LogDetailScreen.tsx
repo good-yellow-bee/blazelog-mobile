@@ -66,12 +66,8 @@ export const LogDetailScreen = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
-          Message
-        </Text>
-        <Text style={[styles.message, { color: theme.colors.onSurface }]}>
-          {log.message}
-        </Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>Message</Text>
+        <Text style={[styles.message, { color: theme.colors.onSurface }]}>{log.message}</Text>
       </View>
 
       <Divider style={{ backgroundColor: theme.colors.surfaceVariant }} />
@@ -88,9 +84,7 @@ export const LogDetailScreen = () => {
             iconColor={copied ? theme.colors.primary : theme.colors.onSurfaceVariant}
           />
         </View>
-        <Text style={[styles.mono, { color: theme.colors.onSurface }]}>
-          {log.id}
-        </Text>
+        <Text style={[styles.mono, { color: theme.colors.onSurface }]}>{log.id}</Text>
       </View>
 
       {log.source && (
@@ -100,9 +94,7 @@ export const LogDetailScreen = () => {
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
               Source
             </Text>
-            <Text style={[styles.mono, { color: theme.colors.onSurface }]}>
-              {log.source}
-            </Text>
+            <Text style={[styles.mono, { color: theme.colors.onSurface }]}>{log.source}</Text>
           </View>
         </>
       )}
@@ -165,10 +157,7 @@ export const LogDetailScreen = () => {
       {hasMetadata && (
         <>
           <Divider style={{ backgroundColor: theme.colors.surfaceVariant }} />
-          <Pressable
-            onPress={() => setMetadataExpanded(!metadataExpanded)}
-            style={styles.section}
-          >
+          <Pressable onPress={() => setMetadataExpanded(!metadataExpanded)} style={styles.section}>
             <View style={styles.expandHeader}>
               <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
                 Metadata

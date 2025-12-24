@@ -79,9 +79,7 @@ export interface NotificationData {
   projectId?: string;
 }
 
-export function parseNotificationData(
-  notification: Notifications.Notification
-): NotificationData {
+export function parseNotificationData(notification: Notifications.Notification): NotificationData {
   const data = notification.request.content.data as Record<string, unknown>;
   return {
     type: data?.type as NotificationData['type'],

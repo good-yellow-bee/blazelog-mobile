@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { ApiError, handleApiError, getErrorMessage } from '@/utils/errors';
+import { ApiError, handleApiError, getErrorMessage, ApiErrorResponse } from '@/utils/errors';
 
 describe('ApiError', () => {
   it('should extract code and message from AxiosError response', () => {
@@ -7,13 +7,13 @@ describe('ApiError', () => {
       response: {
         data: {
           error: {
-            code: 'UNAUTHORIZED',
+            code: 'UNAUTHORIZED' as const,
             message: 'Invalid credentials',
           },
         },
         status: 401,
       },
-    } as AxiosError<{ error: { code: string; message: string } }>;
+    } as AxiosError<ApiErrorResponse>;
 
     const apiError = new ApiError(axiosError);
 
@@ -24,7 +24,7 @@ describe('ApiError', () => {
   });
 
   it('should use defaults when response is missing', () => {
-    const axiosError = {} as AxiosError;
+    const axiosError = {} as AxiosError<ApiErrorResponse>;
 
     const apiError = new ApiError(axiosError);
 
@@ -38,10 +38,10 @@ describe('handleApiError', () => {
   it('should return ApiError unchanged', () => {
     const existingError = new ApiError({
       response: {
-        data: { error: { code: 'NOT_FOUND', message: 'Not found' } },
+        data: { error: { code: 'NOT_FOUND' as const, message: 'Not found' } },
         status: 404,
       },
-    } as AxiosError);
+    } as AxiosError<ApiErrorResponse>);
 
     const result = handleApiError(existingError);
 

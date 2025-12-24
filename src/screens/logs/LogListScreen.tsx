@@ -22,15 +22,8 @@ export const LogListScreen = () => {
     start: getDefaultStart(),
   });
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-    isRefetching,
-  } = useLogsQuery(toApiFilters(filters));
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch, isRefetching } =
+    useLogsQuery(toApiFilters(filters));
 
   const logs = flattenLogs(data?.pages);
 

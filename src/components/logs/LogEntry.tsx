@@ -45,9 +45,7 @@ export const LogEntry = ({ log, onPress }: LogEntryProps) => {
         {log.message}
       </Text>
       {log.source ? (
-        <Text style={[styles.source, { color: theme.colors.onSurfaceVariant }]}>
-          {log.source}
-        </Text>
+        <Text style={[styles.source, { color: theme.colors.onSurfaceVariant }]}>{log.source}</Text>
       ) : null}
     </Pressable>
   );

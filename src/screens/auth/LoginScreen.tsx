@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Image,
-} from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,10 +54,7 @@ export const LoginScreen = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.logoContainer}>
-            <Text
-              variant="displaySmall"
-              style={[styles.logo, { color: theme.colors.primary }]}
-            >
+            <Text variant="displaySmall" style={[styles.logo, { color: theme.colors.primary }]}>
               Blazelog
             </Text>
             <Text
@@ -79,7 +69,7 @@ export const LoginScreen = () => {
             <Controller
               control={control}
               name="username"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Input
                   label="Username"
                   value={value}
@@ -97,7 +87,7 @@ export const LoginScreen = () => {
             <Controller
               control={control}
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Input
                   label="Password"
                   value={value}

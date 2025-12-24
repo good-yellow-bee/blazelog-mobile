@@ -45,9 +45,7 @@ export const AlertListScreen = () => {
   }, [refetch]);
 
   const renderItem: ListRenderItem<Alert> = useCallback(
-    ({ item }) => (
-      <AlertCard alert={item} onPress={handleAlertPress} onToggle={handleToggle} />
-    ),
+    ({ item }) => <AlertCard alert={item} onPress={handleAlertPress} onToggle={handleToggle} />,
     [handleAlertPress, handleToggle]
   );
 

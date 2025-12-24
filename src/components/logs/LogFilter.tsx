@@ -76,9 +76,7 @@ export const LogFilter = ({ filters, onFiltersChange }: LogFilterProps) => {
         inputStyle={styles.searchInput}
       />
       <View style={styles.levelContainer}>
-        <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
-          Level:
-        </Text>
+        <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Level:</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -91,10 +89,7 @@ export const LogFilter = ({ filters, onFiltersChange }: LogFilterProps) => {
                 key={level}
                 selected={isSelected}
                 onPress={() => handleLevelToggle(level)}
-                style={[
-                  styles.chip,
-                  isSelected && { backgroundColor: `${levelColors[level]}30` },
-                ]}
+                style={[styles.chip, isSelected && { backgroundColor: `${levelColors[level]}30` }]}
                 textStyle={[
                   styles.chipText,
                   { color: isSelected ? levelColors[level] : theme.colors.onSurfaceVariant },

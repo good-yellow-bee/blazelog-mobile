@@ -21,11 +21,7 @@ export const LogStack = () => {
         },
       }}
     >
-      <Stack.Screen
-        name="LogList"
-        component={LogListScreen}
-        options={{ title: 'Logs' }}
-      />
+      <Stack.Screen name="LogList" component={LogListScreen} options={{ title: 'Logs' }} />
       <Stack.Screen
         name="LogDetail"
         component={LogDetailScreen}

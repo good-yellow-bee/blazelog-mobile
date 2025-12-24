@@ -30,12 +30,7 @@ const getDefaultStart = (): string => {
 };
 
 export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
-  const {
-    start = getDefaultStart(),
-    levels = [],
-    maxLogs = 500,
-    autoConnect = false,
-  } = options;
+  const { start = getDefaultStart(), levels = [], maxLogs = 500, autoConnect = false } = options;
 
   const [logs, setLogs] = useState<Log[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -141,7 +136,12 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
   // Auto-connect on mount if enabled
   useEffect(() => {
     if (autoConnect) {
-      connect();
+      // Schedule connect to run after paint to avoid synchronous setState
+      const timeoutId = setTimeout(() => connect(), 0);
+      return () => {
+        clearTimeout(timeoutId);
+        disconnect();
+      };
     }
     return disconnect;
   }, [autoConnect, connect, disconnect]);

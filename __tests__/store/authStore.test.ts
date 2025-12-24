@@ -49,7 +49,7 @@ describe('authStore', () => {
         id: '1',
         username: 'testuser',
         email: 'test@example.com',
-        role: 'user' as const,
+        role: 'viewer' as const,
         created_at: '2024-01-01',
         updated_at: '2024-01-01',
       };
@@ -71,7 +71,7 @@ describe('authStore', () => {
         id: '1',
         username: 'testuser',
         email: 'test@example.com',
-        role: 'user' as const,
+        role: 'viewer' as const,
         created_at: '2024-01-01',
         updated_at: '2024-01-01',
       };
@@ -89,9 +89,9 @@ describe('authStore', () => {
       const error = new Error('Invalid credentials');
       (authApi.login as jest.Mock).mockRejectedValue(error);
 
-      await expect(
-        useAuthStore.getState().login('testuser', 'wrong-password')
-      ).rejects.toThrow('Invalid credentials');
+      await expect(useAuthStore.getState().login('testuser', 'wrong-password')).rejects.toThrow(
+        'Invalid credentials'
+      );
 
       const state = useAuthStore.getState();
       expect(state.isAuthenticated).toBe(false);
@@ -109,7 +109,7 @@ describe('authStore', () => {
           id: '1',
           username: 'testuser',
           email: 'test@example.com',
-          role: 'user' as const,
+          role: 'viewer' as const,
           created_at: '2024-01-01',
           updated_at: '2024-01-01',
         },
@@ -133,7 +133,7 @@ describe('authStore', () => {
         id: '1',
         username: 'testuser',
         email: 'test@example.com',
-        role: 'user' as const,
+        role: 'viewer' as const,
         created_at: '2024-01-01',
         updated_at: '2024-01-01',
       };

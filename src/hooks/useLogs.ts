@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { logsApi } from '@/api';
-import type { LogFilters, LogsResponse, Log, LogStats, LogStatsParams } from '@/api/types';
+import type { LogFilters, LogsResponse, Log, LogStatsParams } from '@/api/types';
 
 // Default time range: last 24 hours
 const getDefaultStart = (): string => {

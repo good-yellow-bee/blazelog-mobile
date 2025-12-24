@@ -9,8 +9,7 @@ const mockLog: Log = {
   level: 'error',
   message: 'Database connection failed',
   source: 'api/database.ts',
-  project_id: 'proj-1',
-  metadata: { host: 'db.example.com' },
+  labels: { host: 'db.example.com' },
 };
 
 describe('LogEntry', () => {

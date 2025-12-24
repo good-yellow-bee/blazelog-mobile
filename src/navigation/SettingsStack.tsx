@@ -23,21 +23,13 @@ export const SettingsStack = () => {
         },
       }}
     >
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: 'Settings' }}
-      />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
         options={{ title: 'Change Password' }}
       />
-      <Stack.Screen
-        name="UserList"
-        component={UserListScreen}
-        options={{ title: 'Users' }}
-      />
+      <Stack.Screen name="UserList" component={UserListScreen} options={{ title: 'Users' }} />
       <Stack.Screen
         name="UserDetail"
         component={UserDetailScreen}

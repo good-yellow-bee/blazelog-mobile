@@ -1,6 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, ScrollView, Alert as RNAlert } from 'react-native';
-import { Text, useTheme, Divider, Chip, Switch, Portal, Dialog, Button as PaperButton } from 'react-native-paper';
+import {
+  Text,
+  useTheme,
+  Divider,
+  Chip,
+  Switch,
+  Portal,
+  Dialog,
+  Button as PaperButton,
+} from 'react-native-paper';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { AlertStackScreenProps } from '@/types/navigation';
 import { LoadingScreen } from '@/components/common';
@@ -44,7 +53,7 @@ export const AlertDetailScreen = () => {
       try {
         await deleteAlert.mutateAsync(alert.id);
         navigation.goBack();
-      } catch (error) {
+      } catch {
         RNAlert.alert('Error', 'Failed to delete alert');
       }
     }
@@ -71,9 +80,7 @@ export const AlertDetailScreen = () => {
             />
           </View>
           {alert.description && (
-            <Text
-              style={[styles.description, { color: theme.colors.onSurfaceVariant }]}
-            >
+            <Text style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
               {alert.description}
             </Text>
           )}
@@ -97,9 +104,7 @@ export const AlertDetailScreen = () => {
           <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
             Condition
           </Text>
-          <Text style={[styles.mono, { color: theme.colors.onSurface }]}>
-            {alert.condition}
-          </Text>
+          <Text style={[styles.mono, { color: theme.colors.onSurface }]}>{alert.condition}</Text>
         </View>
 
         <Divider style={{ backgroundColor: theme.colors.surfaceVariant }} />
@@ -159,7 +164,10 @@ export const AlertDetailScreen = () => {
         <Dialog visible={showDeleteDialog} onDismiss={() => setShowDeleteDialog(false)}>
           <Dialog.Title>Delete Alert</Dialog.Title>
           <Dialog.Content>
-            <Text>Are you sure you want to delete "{alert.name}"? This action cannot be undone.</Text>
+            <Text>
+              Are you sure you want to delete &quot;{alert.name}&quot;? This action cannot be
+              undone.
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <PaperButton onPress={() => setShowDeleteDialog(false)}>Cancel</PaperButton>

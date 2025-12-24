@@ -50,11 +50,7 @@ export const AlertCard = ({ alert, onPress, onToggle }: AlertCardProps) => {
             {alert.name}
           </Text>
         </View>
-        <Switch
-          value={alert.enabled}
-          onValueChange={handleToggle}
-          color={theme.colors.primary}
-        />
+        <Switch value={alert.enabled} onValueChange={handleToggle} color={theme.colors.primary} />
       </View>
 
       {alert.description ? (

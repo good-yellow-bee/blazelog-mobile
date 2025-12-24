@@ -9,7 +9,7 @@ import {
   Dialog,
   Button as PaperButton,
 } from 'react-native-paper';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -41,7 +41,6 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export const UserDetailScreen = () => {
   const theme = useTheme();
   const route = useRoute<SettingsStackScreenProps<'UserDetail'>['route']>();
-  const navigation = useNavigation();
   const { userId } = route.params;
   const [showResetDialog, setShowResetDialog] = useState(false);
 
@@ -114,12 +113,8 @@ export const UserDetailScreen = () => {
             Contact
           </Text>
           <View style={styles.infoRow}>
-            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
-              Email
-            </Text>
-            <Text style={[styles.value, { color: theme.colors.onSurface }]}>
-              {user.email}
-            </Text>
+            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Email</Text>
+            <Text style={[styles.value, { color: theme.colors.onSurface }]}>{user.email}</Text>
           </View>
         </View>
 
@@ -130,17 +125,13 @@ export const UserDetailScreen = () => {
             Account Info
           </Text>
           <View style={styles.infoRow}>
-            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
-              Created
-            </Text>
+            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Created</Text>
             <Text style={[styles.value, { color: theme.colors.onSurface }]}>
               {new Date(user.created_at).toLocaleDateString()}
             </Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
-              Updated
-            </Text>
+            <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>Updated</Text>
             <Text style={[styles.value, { color: theme.colors.onSurface }]}>
               {new Date(user.updated_at).toLocaleDateString()}
             </Text>
@@ -149,11 +140,7 @@ export const UserDetailScreen = () => {
 
         {canResetPassword && (
           <View style={styles.actions}>
-            <Button
-              variant="secondary"
-              onPress={() => setShowResetDialog(true)}
-              fullWidth
-            >
+            <Button variant="secondary" onPress={() => setShowResetDialog(true)} fullWidth>
               Reset Password
             </Button>
           </View>
@@ -164,9 +151,7 @@ export const UserDetailScreen = () => {
         <Dialog visible={showResetDialog} onDismiss={() => setShowResetDialog(false)}>
           <Dialog.Title>Reset Password</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ marginBottom: 16 }}>
-              Set a new password for {user.username}
-            </Text>
+            <Text style={{ marginBottom: 16 }}>Set a new password for {user.username}</Text>
             <Controller
               control={control}
               name="newPassword"

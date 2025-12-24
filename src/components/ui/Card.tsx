@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ViewStyle, Pressable, View } from 'react-native';
+import { StyleSheet, ViewStyle, Pressable } from 'react-native';
 import { Surface, useTheme } from 'react-native-paper';
 
 interface CardProps {
@@ -9,21 +9,12 @@ interface CardProps {
   elevation?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
-export const Card = ({
-  children,
-  onPress,
-  style,
-  elevation = 1,
-}: CardProps) => {
+export const Card = ({ children, onPress, style, elevation = 1 }: CardProps) => {
   const theme = useTheme();
 
   const content = (
     <Surface
-      style={[
-        styles.card,
-        { backgroundColor: theme.colors.surface },
-        style,
-      ]}
+      style={[styles.card, { backgroundColor: theme.colors.surface }, style]}
       elevation={elevation}
     >
       {children}
@@ -34,10 +25,7 @@ export const Card = ({
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.pressable,
-          pressed && styles.pressed,
-        ]}
+        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
       >
         {content}
       </Pressable>
