@@ -386,9 +386,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 2: State Management
+## Phase 2: State Management ✅
 
-### P2-1: Create Auth Store
+### P2-1: Create Auth Store ✅
 
 **Dependencies:** P1-2, P1-7
 **Description:** Implement Zustand store for auth state.
@@ -411,14 +411,14 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Persists auth state check on app start
-- [ ] Clears state on logout
-- [ ] `clearSession()` used when refresh fails to avoid interceptor loops
-- [ ] Profile fetched via `/users/me` after login
+- [x] Persists auth state check on app start
+- [x] Clears state on logout
+- [x] `clearSession()` used when refresh fails to avoid interceptor loops
+- [x] Profile fetched via `/users/me` after login
 
 ---
 
-### P2-2: Create Project Store
+### P2-2: Create Project Store ✅
 
 **Dependencies:** P0-4
 **Description:** Implement Zustand store for project selection.
@@ -438,11 +438,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Persists selected project
+- [x] Persists selected project
 
 ---
 
-### P2-3: Create Settings Store
+### P2-3: Create Settings Store ✅
 
 **Dependencies:** P0-4
 **Description:** Implement Zustand store for app preferences.
@@ -462,11 +462,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Persists to MMKV/AsyncStorage
+- [x] Persists to MMKV/AsyncStorage
 
 ---
 
-### P2-4: Create Store Exports
+### P2-4: Create Store Exports ✅
 
 **Dependencies:** P2-1, P2-2, P2-3
 **Description:** Create barrel export file.
@@ -476,11 +476,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All stores exported
+- [x] All stores exported
 
 ---
 
-### P2-5: Set Up TanStack Query Client
+### P2-5: Set Up TanStack Query Client ✅
 
 **Dependencies:** P0-4
 **Description:** Configure QueryClient with defaults.
@@ -490,34 +490,34 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Stale time configured (5 min)
-- [ ] Retry logic configured
-- [ ] GC time configured (24 hours)
+- [x] Stale time configured (5 min)
+- [x] Retry logic configured
+- [x] GC time configured (24 hours)
 
 ---
 
-### P2-6: Add Query Client Persistence
+### P2-6: Add Query Client Persistence ✅
 
 **Dependencies:** P2-5
-**Description:** Persist query cache to MMKV.
+**Description:** Persist query cache to AsyncStorage.
 **Files to modify:**
 
 - `src/utils/queryClient.ts`
 
 **Dependencies to install:**
 
-- `react-native-mmkv`
-- `@tanstack/query-sync-storage-persister`
+- `@react-native-async-storage/async-storage`
+- `@tanstack/query-async-storage-persister`
 
 **Acceptance Criteria:**
 
-- [ ] Cache survives app restart
+- [x] Cache survives app restart
 
 ---
 
-## Phase 3: Navigation
+## Phase 3: Navigation ✅
 
-### P3-1: Define Navigation Types
+### P3-1: Define Navigation Types ✅
 
 **Dependencies:** P0-5
 **Description:** Create TypeScript types for navigation params.
@@ -535,11 +535,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All screens have typed params
+- [x] All screens have typed params
 
 ---
 
-### P3-2: Create Log Stack Navigator
+### P3-2: Create Log Stack Navigator ✅
 
 **Dependencies:** P3-1
 **Description:** Stack navigator for log screens.
@@ -555,11 +555,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Navigation between screens works
+- [x] Navigation between screens works
 
 ---
 
-### P3-3: Create Alert Stack Navigator
+### P3-3: Create Alert Stack Navigator ✅
 
 **Dependencies:** P3-1
 **Description:** Stack navigator for alert screens.
@@ -575,11 +575,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Navigation between screens works
+- [x] Navigation between screens works
 
 ---
 
-### P3-4: Create Settings Stack Navigator
+### P3-4: Create Settings Stack Navigator ✅
 
 **Dependencies:** P3-1
 **Description:** Stack navigator for settings and admin screens.
@@ -596,12 +596,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Navigation between settings screens works
-- [ ] Admin-only screens are gated by role
+- [x] Navigation between settings screens works
+- [x] Admin-only screens are gated by role
 
 ---
 
-### P3-5: Create Main Tab Navigator
+### P3-5: Create Main Tab Navigator ✅
 
 **Dependencies:** P3-2, P3-3, P3-4
 **Description:** Bottom tab navigator.
@@ -617,12 +617,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Tabs switch correctly
-- [ ] Icons displayed
+- [x] Tabs switch correctly
+- [x] Icons displayed
 
 ---
 
-### P3-6: Create Root Navigator
+### P3-6: Create Root Navigator ✅
 
 **Dependencies:** P2-1, P3-5
 **Description:** Root navigator with auth check.
@@ -638,12 +638,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Redirects based on auth state
-- [ ] RootNavigator does not create `NavigationContainer`
+- [x] Redirects based on auth state
+- [x] RootNavigator does not create `NavigationContainer`
 
 ---
 
-### P3-7: Configure Deep Linking
+### P3-7: Configure Deep Linking ✅
 
 **Dependencies:** P3-6
 **Description:** Set up deep link configuration.
@@ -664,11 +664,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Deep links open correct screens
+- [x] Deep links open correct screens
 
 ---
 
-### P3-8: Integrate Navigation in App.tsx
+### P3-8: Integrate Navigation in App.tsx ✅
 
 **Dependencies:** P3-6, P3-7, P2-5
 **Description:** Set up NavigationContainer with providers.
@@ -684,8 +684,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] App renders with navigation
-- [ ] `NavigationContainer` wraps `RootNavigator` and uses linking config
+- [x] App renders with navigation
+- [x] `NavigationContainer` wraps `RootNavigator` and uses linking config
 
 ---
 
