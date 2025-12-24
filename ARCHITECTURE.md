@@ -6,26 +6,26 @@ Mobile client for [blazelog](https://github.com/good-yellow-bee/blazelog) log ma
 
 ## Backend API Summary
 
-| Aspect | Details |
-|--------|---------|
-| Base URL | `/api/v1` |
-| Auth | JWT + Refresh tokens (15min / 7day TTL) |
-| Format | JSON REST |
-| Docs | OpenAPI 3.0 spec at `blazelog/docs/api/openapi.yaml` |
-| Streaming | SSE for real-time logs |
+| Aspect    | Details                                              |
+| --------- | ---------------------------------------------------- |
+| Base URL  | `/api/v1`                                            |
+| Auth      | JWT + Refresh tokens (15min / 7day TTL)              |
+| Format    | JSON REST                                            |
+| Docs      | OpenAPI 3.0 spec at `blazelog/docs/api/openapi.yaml` |
+| Streaming | SSE for real-time logs                               |
 
 ## Tech Stack
 
-| Category | Choice | Rationale |
-|----------|--------|-----------|
-| Framework | React Native (Expo managed) | Faster iteration, OTA updates, simpler native config |
-| State | Zustand | Minimal boilerplate, TypeScript-first, easy persistence |
-| API | TanStack Query + Axios | Caching, retry logic, mutations, background refetch |
-| Navigation | React Navigation v6 | Industry standard, deep linking support |
-| UI Components | React Native Paper | Material Design 3, theming, accessibility |
-| Forms | React Hook Form + Zod | Type-safe validation, minimal re-renders |
-| Secure Storage | expo-secure-store | Encrypted keychain/keystore access |
-| Testing | Jest + React Native Testing Library + Maestro | Unit, component, and E2E coverage |
+| Category       | Choice                                        | Rationale                                               |
+| -------------- | --------------------------------------------- | ------------------------------------------------------- |
+| Framework      | React Native (Expo managed)                   | Faster iteration, OTA updates, simpler native config    |
+| State          | Zustand                                       | Minimal boilerplate, TypeScript-first, easy persistence |
+| API            | TanStack Query + Axios                        | Caching, retry logic, mutations, background refetch     |
+| Navigation     | React Navigation v6                           | Industry standard, deep linking support                 |
+| UI Components  | React Native Paper                            | Material Design 3, theming, accessibility               |
+| Forms          | React Hook Form + Zod                         | Type-safe validation, minimal re-renders                |
+| Secure Storage | expo-secure-store                             | Encrypted keychain/keystore access                      |
+| Testing        | Jest + React Native Testing Library + Maestro | Unit, component, and E2E coverage                       |
 
 ## Project Structure
 
@@ -119,6 +119,7 @@ blazelog-mobile/
 ## Available Endpoints
 
 ### Auth
+
 - `POST /auth/login` - Get access + refresh tokens (username + password)
 - `POST /auth/refresh` - Refresh access token
 - `POST /auth/logout` - Revoke tokens
@@ -129,22 +130,22 @@ blazelog-mobile/
 
 **Query Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `start` | string (RFC3339) | Start time (required) |
-| `end` | string (RFC3339) | End time (default now) |
-| `agent_id` | string | Filter by agent |
-| `level` | string | Filter by single level |
-| `levels` | string | Comma-separated levels |
-| `type` | string | Filter by type |
-| `source` | string | Filter by source |
-| `file_path` | string | Filter by file path |
-| `q` | string | Message search query |
-| `search_mode` | string | `token`, `substring`, or `phrase` |
-| `page` | integer | Page number (default: 1) |
-| `per_page` | integer | Results per page (default: 50, max: 1000) |
-| `order` | string | Sort by `timestamp` or `level` |
-| `order_dir` | string | Sort direction: `asc` or `desc` |
+| Parameter     | Type             | Description                               |
+| ------------- | ---------------- | ----------------------------------------- |
+| `start`       | string (RFC3339) | Start time (required)                     |
+| `end`         | string (RFC3339) | End time (default now)                    |
+| `agent_id`    | string           | Filter by agent                           |
+| `level`       | string           | Filter by single level                    |
+| `levels`      | string           | Comma-separated levels                    |
+| `type`        | string           | Filter by type                            |
+| `source`      | string           | Filter by source                          |
+| `file_path`   | string           | Filter by file path                       |
+| `q`           | string           | Message search query                      |
+| `search_mode` | string           | `token`, `substring`, or `phrase`         |
+| `page`        | integer          | Page number (default: 1)                  |
+| `per_page`    | integer          | Results per page (default: 50, max: 1000) |
+| `order`       | string           | Sort by `timestamp` or `level`            |
+| `order_dir`   | string           | Sort direction: `asc` or `desc`           |
 
 Note: The OpenAPI does not include `project_id` for logs; access is scoped by auth and backend configuration.
 
@@ -160,23 +161,25 @@ Returns a single log entry by ID.
 
 **Query Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `start` | string (RFC3339) | Start time (default last 5 minutes) |
-| `agent_id` | string | Filter by agent |
-| `level` | string | Filter by single level |
-| `levels` | string | Comma-separated levels |
-| `type` | string | Filter by type |
-| `source` | string | Filter by source |
-| `q` | string | Message search query |
-| `search_mode` | string | `token`, `substring`, or `phrase` |
+| Parameter     | Type             | Description                         |
+| ------------- | ---------------- | ----------------------------------- |
+| `start`       | string (RFC3339) | Start time (default last 5 minutes) |
+| `agent_id`    | string           | Filter by agent                     |
+| `level`       | string           | Filter by single level              |
+| `levels`      | string           | Comma-separated levels              |
+| `type`        | string           | Filter by type                      |
+| `source`      | string           | Filter by source                    |
+| `q`           | string           | Message search query                |
+| `search_mode` | string           | `token`, `substring`, or `phrase`   |
 
 **SSE Events:**
+
 - `log` - New log entry
 - `heartbeat` - Keep-alive (every 30s)
 - `error` - Stream error
 
 ### Users
+
 - `GET /users/me` - Current user profile
 - `PUT /users/me/password` - Change current user's password
 - `GET/POST /users` - List/create users (admin only)
@@ -185,22 +188,26 @@ Returns a single log entry by ID.
 - `POST /users/me/push-token` - Register device push token
 
 ### Alerts
+
 - `GET/POST /alerts` - Alert management
 - `GET /alerts/history` - Alert trigger history
 - `GET/PUT/DELETE /alerts/{id}` - Alert details and updates
 
 ### Projects
+
 - `GET/POST /projects` - Project management
 - `GET/PUT/DELETE /projects/{id}` - Project details and updates
 - `GET/POST /projects/{id}/users` - Project user membership
 - `DELETE /projects/{id}/users/{userId}` - Remove user from project
 
 ### Connections
+
 - `GET/POST /connections` - Connection management
 - `GET/PUT/DELETE /connections/{id}` - Connection details and updates
 - `POST /connections/{id}/test` - Test connection
 
 ### Health
+
 - `GET /health` - Health check
 
 ## Response Schemas
@@ -219,7 +226,7 @@ interface ApiEnvelope<T> {
 interface LoginResponse {
   access_token: string;
   refresh_token: string;
-  expires_in: number;            // Access token TTL in seconds
+  expires_in: number; // Access token TTL in seconds
   token_type: 'Bearer';
 }
 ```
@@ -228,12 +235,12 @@ interface LoginResponse {
 
 ```typescript
 interface User {
-  id: string;                    // UUID
+  id: string; // UUID
   username: string;
   email: string;
   role: 'admin' | 'operator' | 'viewer';
-  created_at: string;            // ISO 8601
-  updated_at: string;            // ISO 8601
+  created_at: string; // ISO 8601
+  updated_at: string; // ISO 8601
 }
 ```
 
@@ -242,7 +249,7 @@ interface User {
 ```typescript
 interface Log {
   id: string;
-  timestamp: string;             // ISO 8601
+  timestamp: string; // ISO 8601
   level: 'debug' | 'info' | 'warning' | 'error' | 'fatal';
   message: string;
   source?: string;
@@ -272,17 +279,17 @@ interface LogsResponse {
 
 ```typescript
 interface Alert {
-  id: string;                    // UUID
+  id: string; // UUID
   name: string;
   description?: string;
   type: 'error_rate' | 'log_match' | 'threshold';
-  condition: string;             // Condition expression
+  condition: string; // Condition expression
   severity: 'info' | 'warning' | 'critical';
-  window: string;                // e.g. "5m"
-  cooldown: string;              // e.g. "10m"
-  notify: string[];              // Notification channel names
+  window: string; // e.g. "5m"
+  cooldown: string; // e.g. "10m"
+  notify: string[]; // Notification channel names
   enabled: boolean;
-  project_id: string;            // UUID
+  project_id: string; // UUID
   created_at: string;
   updated_at: string;
 }
@@ -292,7 +299,7 @@ interface Alert {
 
 ```typescript
 interface Project {
-  id: string;                    // UUID
+  id: string; // UUID
   name: string;
   description?: string;
   created_at: string;
@@ -337,11 +344,11 @@ export default {
 
 **Environment files:**
 
-| File | Purpose |
-|------|---------|
+| File               | Purpose           |
+| ------------------ | ----------------- |
 | `.env.development` | Local development |
-| `.env.staging` | Staging builds |
-| `.env.production` | Production builds |
+| `.env.staging`     | Staging builds    |
+| `.env.production`  | Production builds |
 
 ```bash
 # .env.example
@@ -350,6 +357,7 @@ APP_ENV=development
 ```
 
 Access in code:
+
 ```typescript
 import Constants from 'expo-constants';
 
@@ -507,7 +515,7 @@ export const authStore = create<AuthState>((set, get) => ({
   login: async (username, password) => {
     const response = await client.post('/auth/login', { username, password });
     const { access_token, refresh_token } = response.data.data;
-    
+
     await storage.setAccessToken(access_token);
     await storage.setRefreshToken(refresh_token);
 
@@ -539,7 +547,7 @@ export const authStore = create<AuthState>((set, get) => ({
         set({ isAuthenticated: false, isLoading: false });
         return;
       }
-      
+
       const response = await client.get('/users/me');
       set({ isAuthenticated: true, user: response.data.data, isLoading: false });
     } catch {
@@ -557,7 +565,7 @@ export const authStore = create<AuthState>((set, get) => ({
 ```typescript
 interface ApiErrorResponse {
   error: {
-    code: string;         // 'BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', etc.
+    code: string; // 'BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', etc.
     message: string;
   };
 }
@@ -888,7 +896,20 @@ export const useSSE = ({
         return delay;
       },
     });
-  }, [enabled, isOnline, start, agent_id, level, levels, type, source, q, search_mode, onLog, onError]);
+  }, [
+    enabled,
+    isOnline,
+    start,
+    agent_id,
+    level,
+    levels,
+    type,
+    source,
+    q,
+    search_mode,
+    onLog,
+    onError,
+  ]);
 
   const disconnect = useCallback(() => {
     controllerRef.current?.abort();
@@ -1049,9 +1070,9 @@ export const linking: LinkingOptions<RootStackParamList> = {
 
 ### URL Schemes
 
-| Platform | Scheme | Example |
-|----------|--------|---------|
-| iOS/Android | `blazelog://` | `blazelog://logs/abc123` |
+| Platform        | Scheme                      | Example                                |
+| --------------- | --------------------------- | -------------------------------------- |
+| iOS/Android     | `blazelog://`               | `blazelog://logs/abc123`               |
 | Universal Links | `https://app.blazelog.dev/` | `https://app.blazelog.dev/logs/abc123` |
 
 ### Handling Deep Links
@@ -1180,7 +1201,7 @@ export default function App() {
     // Handle notification tap when app is in background/quit
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as AlertNotification;
-      
+
       if (data.type === 'alert_triggered') {
         navigation.navigate('Alerts', {
           screen: 'AlertDetail',
@@ -1265,13 +1286,13 @@ describe('LogEntry', () => {
 appId: dev.blazelog.mobile
 ---
 - launchApp
-- assertVisible: "Log in to Blazelog"
-- tapOn: "Email"
-- inputText: "test@example.com"
-- tapOn: "Password"
-- inputText: "password123"
-- tapOn: "Log In"
-- assertVisible: "Logs" # Bottom tab visible after login
+- assertVisible: 'Log in to Blazelog'
+- tapOn: 'Email'
+- inputText: 'test@example.com'
+- tapOn: 'Password'
+- inputText: 'password123'
+- tapOn: 'Log In'
+- assertVisible: 'Logs' # Bottom tab visible after login
 ```
 
 ```yaml
@@ -1280,12 +1301,12 @@ appId: dev.blazelog.mobile
 ---
 - launchApp
 - runFlow: login.yaml
-- tapOn: "Logs"
-- assertVisible: "Log Viewer"
-- tapOn: "Filter"
-- tapOn: "Error"
-- tapOn: "Apply"
-- assertVisible: "error" # At least one error log visible
+- tapOn: 'Logs'
+- assertVisible: 'Log Viewer'
+- tapOn: 'Filter'
+- tapOn: 'Error'
+- tapOn: 'Apply'
+- assertVisible: 'error' # At least one error log visible
 ```
 
 ### Running Tests
@@ -1306,11 +1327,11 @@ maestro test .maestro/
 
 ## Rate Limits
 
-| Endpoint | Limit | Window |
-|----------|-------|--------|
-| Auth endpoints | 5 requests | per minute per IP |
+| Endpoint                | Limit        | Window              |
+| ----------------------- | ------------ | ------------------- |
+| Auth endpoints          | 5 requests   | per minute per IP   |
 | Authenticated endpoints | 100 requests | per minute per user |
-| SSE streams | 5 concurrent | per user |
+| SSE streams             | 5 concurrent | per user            |
 
 ### Handling Rate Limits
 
@@ -1338,6 +1359,7 @@ npx openapi-typescript ../blazelog/docs/api/openapi.yaml -o src/api/types.ts
 ```
 
 Add to `package.json` scripts:
+
 ```json
 {
   "scripts": {
