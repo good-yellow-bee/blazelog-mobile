@@ -87,7 +87,7 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-### P0-5: Create Folder Structure
+### P0-5: Create Folder Structure ✅
 
 **Dependencies:** P0-4
 **Description:** Create empty folder structure per ARCHITECTURE.md.
@@ -113,8 +113,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All folders exist
-- [ ] Each folder has an `index.ts` for exports
+- [x] All folders exist
+- [x] Each folder has an `index.ts` for exports
 
 ---
 
