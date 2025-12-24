@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { authApi, usersApi, setSessionClearer } from '@/api';
-import { storage } from '@/utils';
+import { storage, registerForPushNotifications } from '@/utils';
 import type { User } from '@/api/types';
 
 interface AuthState {
@@ -38,6 +38,8 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         await authApi.login(username, password);
         const user = await usersApi.getCurrentUser();
         set({ isAuthenticated: true, user, isLoading: false });
+        // Register for push notifications after successful login
+        registerForPushNotifications().catch(console.error);
       } catch (error) {
         set({ isLoading: false });
         throw error;
@@ -65,6 +67,8 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         }
         const user = await usersApi.getCurrentUser();
         set({ isAuthenticated: true, user, isLoading: false });
+        // Register for push notifications after auth check
+        registerForPushNotifications().catch(console.error);
       } catch {
         await get().clearSession();
       }
