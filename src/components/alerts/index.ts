@@ -1,1 +1,2 @@
-// Barrel exports for alerts
+// Alert component exports
+export { AlertCard } from './AlertCard';
