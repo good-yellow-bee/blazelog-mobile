@@ -32,6 +32,9 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env.development
+.env.staging
+.env.production
 
 # Serena MCP
 .serena/

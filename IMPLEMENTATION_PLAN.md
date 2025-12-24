@@ -118,7 +118,7 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-### P0-6: Configure Environment Variables
+### P0-6: Configure Environment Variables ✅
 
 **Dependencies:** P0-1
 **Description:** Set up Expo environment configuration.
@@ -131,8 +131,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] `API_URL` accessible via `Constants.expoConfig.extra`
-- [ ] TypeScript types for env vars
+- [x] `API_URL` accessible via `Constants.expoConfig.extra`
+- [x] TypeScript types for env vars
 
 ---
 
