@@ -962,9 +962,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 6: Log Screens
+## Phase 6: Log Screens ✅
 
-### P6-1: Create useLogsQuery Hook
+### P6-1: Create useLogsQuery Hook ✅
 
 **Dependencies:** P1-8, P2-5
 **Description:** TanStack Query hook for fetching logs.
@@ -981,12 +981,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Returns `LogsResponse` from `response.data.data`
-- [ ] Supports refetch
+- [x] Returns `LogsResponse` from `response.data.data`
+- [x] Supports refetch
 
 ---
 
-### P6-2: Create LogList Component
+### P6-2: Create LogList Component ✅
 
 **Dependencies:** P4-8, P6-1
 **Description:** FlatList of log entries.
@@ -1002,12 +1002,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Loads more on scroll
-- [ ] Shows loading footer
+- [x] Loads more on scroll
+- [x] Shows loading footer
 
 ---
 
-### P6-3: Create Log List Screen
+### P6-3: Create Log List Screen ✅
 
 **Dependencies:** P6-2, P4-9
 **Description:** Main log viewing screen.
@@ -1023,13 +1023,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Filters update list
-- [ ] Navigation to detail
-- [ ] Default time range provided if user has not selected one
+- [x] Filters update list
+- [x] Navigation to detail
+- [x] Default time range provided if user has not selected one
 
 ---
 
-### P6-4: Create Log Detail Screen
+### P6-4: Create Log Detail Screen ✅
 
 **Dependencies:** P4-7, P1-8
 **Description:** Full log entry view.
@@ -1046,13 +1046,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Metadata is collapsible
-- [ ] Can copy log ID
-- [ ] Screen can render from navigation params when provided to avoid refetch
+- [x] Metadata is collapsible
+- [x] Can copy log ID
+- [x] Screen can render from navigation params when provided to avoid refetch
 
 ---
 
-### P6-5: Create useSSE Hook
+### P6-5: Create useSSE Hook ✅
 
 **Dependencies:** P1-2
 **Description:** SSE connection hook with reconnection.
@@ -1070,13 +1070,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Reconnects on disconnect
-- [ ] Stops on unmount
-- [ ] Uses `@microsoft/fetch-event-source` instead of native `EventSource`
+- [x] Reconnects on disconnect
+- [x] Stops on unmount
+- [x] Uses `@microsoft/fetch-event-source` instead of native `EventSource`
 
 ---
 
-### P6-6: Create Log Stream Screen
+### P6-6: Create Log Stream Screen ✅
 
 **Dependencies:** P6-5, P4-8
 **Description:** Real-time log streaming view.
@@ -1093,8 +1093,8 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Logs appear in real-time
-- [ ] Max 500 logs in memory
+- [x] Logs appear in real-time
+- [x] Max 500 logs in memory
 
 ---
 

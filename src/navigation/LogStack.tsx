@@ -2,32 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from 'react-native-paper';
 import type { LogStackParamList } from '@/types/navigation';
-
-// Placeholder screens - will be implemented in Phase 6
-import { View, Text, StyleSheet } from 'react-native';
-
-const PlaceholderScreen = ({ name }: { name: string }) => (
-  <View style={styles.placeholder}>
-    <Text style={styles.text}>{name} - Coming Soon</Text>
-  </View>
-);
-
-const LogListScreen = () => <PlaceholderScreen name="Log List" />;
-const LogDetailScreen = () => <PlaceholderScreen name="Log Detail" />;
-const LogStreamScreen = () => <PlaceholderScreen name="Log Stream" />;
-
-const styles = StyleSheet.create({
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0d1117',
-  },
-  text: {
-    color: '#8b949e',
-    fontSize: 18,
-  },
-});
+import { LogListScreen, LogDetailScreen, LogStreamScreen } from '@/screens/logs';
 
 const Stack = createNativeStackNavigator<LogStackParamList>();
 
