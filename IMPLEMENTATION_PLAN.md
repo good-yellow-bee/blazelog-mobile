@@ -53,7 +53,7 @@ npx create-expo-app blazelog-mobile --template expo-template-blank-typescript
 
 ---
 
-### P0-3: Configure Path Aliases
+### P0-3: Configure Path Aliases ✅
 
 **Dependencies:** P0-1
 **Description:** Set up `@/` path alias for cleaner imports.
@@ -64,7 +64,7 @@ npx create-expo-app blazelog-mobile --template expo-template-blank-typescript
 
 **Acceptance Criteria:**
 
-- [ ] Can import using `@/components/...`
+- [x] Can import using `@/components/...`
 
 ---
 
