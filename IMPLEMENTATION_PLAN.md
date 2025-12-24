@@ -1192,9 +1192,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 8: Project & Settings
+## Phase 8: Project & Settings ✅
 
-### P8-1: Create useProjectsQuery Hook
+### P8-1: Create useProjectsQuery Hook ✅
 
 **Dependencies:** P1-10, P2-5
 **Description:** Query hook for projects.
@@ -1204,11 +1204,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Returns user's projects
+- [x] Returns user's projects
 
 ---
 
-### P8-2: Create Project Switcher Screen
+### P8-2: Create Project Switcher Screen ✅
 
 **Dependencies:** P8-1, P2-2
 **Description:** Project selection screen.
@@ -1224,12 +1224,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Updates project store
-- [ ] Navigates back after select
+- [x] Updates project store
+- [x] Navigates back after select
 
 ---
 
-### P8-3: Create Settings Screen
+### P8-3: Create Settings Screen ✅
 
 **Dependencies:** P2-3, P2-1
 **Description:** App settings and preferences.
@@ -1248,12 +1248,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Settings persist
-- [ ] Logout clears auth
+- [x] Settings persist
+- [x] Logout clears auth
 
 ---
 
-### P8-4: Create Change Password Screen
+### P8-4: Create Change Password Screen ✅
 
 **Dependencies:** P1-11, P4-1, P4-2
 **Description:** Allow current user to change their password.
@@ -1269,13 +1269,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Calls `/users/me/password` with `current_password` and `new_password`
-- [ ] Shows success confirmation
-- [ ] Validates min length and confirmation match
+- [x] Calls `/users/me/password` with `current_password` and `new_password`
+- [x] Shows success confirmation
+- [x] Validates min length and confirmation match
 
 ---
 
-### P8-5: Create Admin User Management Screen
+### P8-5: Create Admin User Management Screen ✅
 
 **Dependencies:** P1-11, P4-3, P4-1
 **Description:** Admin-only user list with reset password action.
@@ -1292,11 +1292,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Uses `/users` and `/users/{id}` to load user data
-- [ ] Calls `/users/{id}/password` to reset passwords
-- [ ] UI only allows resetting users with lower roles
-- [ ] UI prevents resetting the current user's password
-- [ ] Non-admin users cannot access these screens
+- [x] Uses `/users` and `/users/{id}` to load user data
+- [x] Calls `/users/{id}/password` to reset passwords
+- [x] UI only allows resetting users with lower roles
+- [x] UI prevents resetting the current user's password
+- [x] Non-admin users cannot access these screens
 
 ---
 

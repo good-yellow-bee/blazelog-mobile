@@ -9,3 +9,11 @@ export {
   useDeleteAlert,
   useToggleAlert,
 } from './useAlerts';
+export { useProjectsQuery, useProjectQuery } from './useProjects';
+export {
+  useCurrentUser,
+  useUsersQuery,
+  useUserQuery,
+  useChangePassword,
+  useResetUserPassword,
+} from './useUsers';
