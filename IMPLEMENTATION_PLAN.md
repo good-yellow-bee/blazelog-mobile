@@ -68,7 +68,7 @@ npx create-expo-app blazelog-mobile --template expo-template-blank-typescript
 
 ---
 
-### P0-4: Install Core Dependencies
+### P0-4: Install Core Dependencies ✅
 
 **Dependencies:** P0-1
 **Description:** Install all required npm packages.
@@ -77,13 +77,13 @@ npx create-expo-app blazelog-mobile --template expo-template-blank-typescript
 npx expo install expo-secure-store expo-constants expo-notifications expo-device
 npm install zustand @tanstack/react-query axios react-native-paper react-hook-form zod @hookform/resolvers @microsoft/fetch-event-source
 npm install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs
-npx expo install react-native-screens react-native-safe-area-context
+npx expo install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated
 ```
 
 **Acceptance Criteria:**
 
-- [ ] All packages installed
-- [ ] No peer dependency conflicts
+- [x] All packages installed
+- [x] No peer dependency conflicts
 
 ---
 
