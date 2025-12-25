@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Text, useTheme, Divider, IconButton } from 'react-native-paper';
 import * as Clipboard from 'expo-clipboard';
@@ -32,6 +32,17 @@ export const LogDetailScreen = () => {
   // Use passed log if available, otherwise fetch
   const { data: fetchedLog, isLoading } = useLogQuery(logId, !passedLog);
   const log = passedLog || fetchedLog;
+
+  // Memoize JSON stringification to avoid recalculation on every render
+  // Must be called before any early returns to follow React hooks rules
+  const formattedMetadata = useMemo(() => {
+    if (!log?.fields) return '';
+    try {
+      return JSON.stringify(log.fields, null, 2);
+    } catch {
+      return 'Unable to display metadata';
+    }
+  }, [log]);
 
   const handleCopyId = async () => {
     if (log) {
@@ -170,7 +181,7 @@ export const LogDetailScreen = () => {
             </View>
             {metadataExpanded && (
               <Text style={[styles.json, { color: theme.colors.onSurface }]}>
-                {JSON.stringify(log.fields, null, 2)}
+                {formattedMetadata}
               </Text>
             )}
           </Pressable>

@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { usersApi } from '@/api';
+import { logger } from './logger';
 
 // Configure how notifications are handled when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -32,7 +33,7 @@ async function setupAndroidNotificationChannel(): Promise<void> {
 export async function registerForPushNotifications(): Promise<string | null> {
   // Only real devices can receive push notifications
   if (!Device.isDevice) {
-    console.log('Push notifications require a physical device');
+    logger.info('Push notifications require a physical device');
     return null;
   }
 
@@ -50,7 +51,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 
   if (finalStatus !== 'granted') {
-    console.log('Push notification permission not granted');
+    logger.info('Push notification permission not granted');
     return null;
   }
 
@@ -66,9 +67,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
     const platform = Platform.OS === 'ios' ? 'ios' : 'android';
     await usersApi.registerPushToken(token, platform);
 
+    logger.info('Push notification token registered');
     return token;
   } catch (error) {
-    console.error('Failed to get push token:', error);
+    logger.error('Failed to get push token', error);
     return null;
   }
 }
@@ -79,11 +81,65 @@ export interface NotificationData {
   projectId?: string;
 }
 
+/**
+ * Type guard to check if a value is a valid string
+ */
+const isValidString = (value: unknown): value is string => {
+  return typeof value === 'string' && value.length > 0 && value.length < 1000;
+};
+
+/**
+ * Type guard to check if notification type is valid
+ */
+const isValidNotificationType = (value: unknown): value is 'alert' => {
+  return value === 'alert';
+};
+
+/**
+ * Safely parse notification data with proper type validation
+ * Prevents type confusion attacks and malformed data crashes
+ */
 export function parseNotificationData(notification: Notifications.Notification): NotificationData {
-  const data = notification.request.content.data as Record<string, unknown>;
-  return {
-    type: data?.type as NotificationData['type'],
-    alertId: data?.alertId as string | undefined,
-    projectId: data?.projectId as string | undefined,
-  };
+  try {
+    const rawData = notification?.request?.content?.data;
+
+    // Ensure data is an object
+    if (!rawData || typeof rawData !== 'object' || Array.isArray(rawData)) {
+      logger.warn('Invalid notification data format');
+      return {};
+    }
+
+    const data = rawData as Record<string, unknown>;
+    const result: NotificationData = {};
+
+    // Validate type field
+    if (isValidNotificationType(data.type)) {
+      result.type = data.type;
+    }
+
+    // Validate alertId field
+    if (isValidString(data.alertId)) {
+      // Additional validation: alertId should look like a valid ID (alphanumeric with dashes)
+      if (/^[a-zA-Z0-9-_]+$/.test(data.alertId)) {
+        result.alertId = data.alertId;
+      } else {
+        logger.warn('Invalid alertId format in notification');
+      }
+    }
+
+    // Validate projectId field
+    if (isValidString(data.projectId)) {
+      // Additional validation: projectId should look like a valid ID
+      if (/^[a-zA-Z0-9-_]+$/.test(data.projectId)) {
+        result.projectId = data.projectId;
+      } else {
+        logger.warn('Invalid projectId format in notification');
+      }
+    }
+
+    return result;
+  } catch (error) {
+    logger.error('Error parsing notification data', error);
+    return {};
+  }
 }

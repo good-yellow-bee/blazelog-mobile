@@ -4,6 +4,9 @@ import { storage } from '@/utils/storage';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl ?? 'https://api.blazelog.dev';
 
+// Token refresh timeout (30 seconds)
+const TOKEN_REFRESH_TIMEOUT = 30000;
+
 export const client = axios.create({
   baseURL: `${API_URL}/api/v1`,
   timeout: 10000,
@@ -23,14 +26,25 @@ client.interceptors.request.use(async (config) => {
 
 // Response interceptor - handle 401 and refresh token
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: Array<{
+  resolve: (token: string) => void;
+  reject: (error: Error) => void;
+}> = [];
 
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
+const subscribeTokenRefresh = (
+  resolve: (token: string) => void,
+  reject: (error: Error) => void
+) => {
+  refreshSubscribers.push({ resolve, reject });
 };
 
 const onTokenRefreshed = (token: string) => {
-  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers.forEach(({ resolve }) => resolve(token));
+  refreshSubscribers = [];
+};
+
+const onTokenRefreshFailed = (error: Error) => {
+  refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 };
 
@@ -48,12 +62,23 @@ client.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // Wait for refresh to complete
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(client(originalRequest));
-          });
+        // Wait for refresh to complete with timeout
+        return new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Token refresh timeout'));
+          }, TOKEN_REFRESH_TIMEOUT);
+
+          subscribeTokenRefresh(
+            (token) => {
+              clearTimeout(timeoutId);
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(client(originalRequest));
+            },
+            (err) => {
+              clearTimeout(timeoutId);
+              reject(err);
+            }
+          );
         });
       }
 
@@ -78,7 +103,12 @@ client.interceptors.response.use(
         onTokenRefreshed(access_token);
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return client(originalRequest);
-      } catch {
+      } catch (refreshError) {
+        // Notify all waiting subscribers of the failure
+        const failureError =
+          refreshError instanceof Error ? refreshError : new Error('Token refresh failed');
+        onTokenRefreshFailed(failureError);
+
         // Refresh failed - clear session without calling logout API
         if (clearSessionFn) {
           await clearSessionFn();
