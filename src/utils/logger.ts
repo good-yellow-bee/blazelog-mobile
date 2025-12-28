@@ -44,7 +44,6 @@ export const logger = {
     addToBuffer(entry);
 
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
       console.debug(formatMessage('debug', message, data));
     }
   },
@@ -59,7 +58,6 @@ export const logger = {
     addToBuffer(entry);
 
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
       console.info(formatMessage('info', message, data));
     }
   },
@@ -74,7 +72,6 @@ export const logger = {
     addToBuffer(entry);
 
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
       console.warn(formatMessage('warn', message, data));
     }
   },
@@ -97,7 +94,6 @@ export const logger = {
     addToBuffer(entry);
 
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
       console.error(formatMessage('error', message, sanitizedError));
     }
   },
