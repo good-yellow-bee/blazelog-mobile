@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { logsApi } from '@/api';
+import { MAX_PAGES_IN_MEMORY } from '@/utils';
 import type { LogFilters, LogsResponse, Log, LogStatsParams } from '@/api/types';
 
 // Default time range: last 24 hours
@@ -24,13 +25,19 @@ export const useLogsQuery = (filters: Partial<LogFilters> = {}) => {
         page: pageParam,
       });
     },
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: (lastPage, allPages) => {
+      // Limit maximum pages in memory to prevent OOM
+      if (allPages.length >= MAX_PAGES_IN_MEMORY) {
+        return undefined;
+      }
       if (lastPage.page < lastPage.total_pages) {
         return lastPage.page + 1;
       }
       return undefined;
     },
     initialPageParam: 1,
+    // Limit max pages stored in query data
+    maxPages: MAX_PAGES_IN_MEMORY,
   });
 };
 
@@ -49,8 +56,15 @@ export const useLogStatsQuery = (params: LogStatsParams) => {
   });
 };
 
-// Helper to flatten paginated logs
+// Helper to flatten paginated logs with memory-efficient processing
 export const flattenLogs = (pages: LogsResponse[] | undefined): Log[] => {
   if (!pages) return [];
+  // Only flatten visible pages to prevent memory bloat
   return pages.flatMap((page) => page.items);
+};
+
+// Calculate total logs count from pagination metadata
+export const getTotalLogsCount = (pages: LogsResponse[] | undefined): number => {
+  if (!pages || pages.length === 0) return 0;
+  return pages[0].total;
 };

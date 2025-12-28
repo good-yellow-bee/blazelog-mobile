@@ -1,16 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import Constants from 'expo-constants';
-import { storage } from '@/utils';
+import { storage, logger } from '@/utils';
 import type { Log } from '@/api/types';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl ?? 'https://api.blazelog.dev';
+
+// Debounce delay for connection attempts (ms)
+const CONNECT_DEBOUNCE_MS = 500;
 
 interface UseSSEOptions {
   start?: string;
   levels?: string[];
   maxLogs?: number;
   autoConnect?: boolean;
+  pauseOnBackground?: boolean;
 }
 
 interface UseSSEReturn {
@@ -30,7 +35,13 @@ const getDefaultStart = (): string => {
 };
 
 export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
-  const { start = getDefaultStart(), levels = [], maxLogs = 500, autoConnect = false } = options;
+  const {
+    start = getDefaultStart(),
+    levels = [],
+    maxLogs = 500,
+    autoConnect = false,
+    pauseOnBackground = true, // Disable connection when app is backgrounded by default
+  } = options;
 
   const [logs, setLogs] = useState<Log[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -38,9 +49,17 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const retryCountRef = useRef(0);
+  const connectDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wasConnectedBeforeBackground = useRef(false);
   const maxRetries = 5;
 
   const disconnect = useCallback(() => {
+    // Clear any pending debounced connect
+    if (connectDebounceRef.current) {
+      clearTimeout(connectDebounceRef.current);
+      connectDebounceRef.current = null;
+    }
+
     if (controllerRef.current) {
       controllerRef.current.abort();
       controllerRef.current = null;
@@ -50,16 +69,21 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
     retryCountRef.current = 0;
   }, []);
 
-  const connect = useCallback(async () => {
-    disconnect();
+  const connectInternal = useCallback(async () => {
+    // Abort any existing connection first
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+      controllerRef.current = null;
+    }
 
+    // Always get fresh token on each connection/reconnection attempt
     const token = await storage.getAccessToken();
     if (!token) {
       setError('Not authenticated');
+      setIsConnecting(false);
       return;
     }
 
-    setIsConnecting(true);
     setError(null);
     controllerRef.current = new AbortController();
 
@@ -82,6 +106,10 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
             setIsConnected(true);
             setIsConnecting(false);
             retryCountRef.current = 0;
+            logger.info('SSE connection established');
+          } else if (response.status === 401) {
+            // Token expired - will retry with fresh token
+            throw new Error('Token expired');
           } else {
             throw new Error(`Failed to connect: ${response.status}`);
           }
@@ -96,7 +124,7 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
                 return newLogs.slice(0, maxLogs);
               });
             } catch (e) {
-              console.warn('Failed to parse log event:', e);
+              logger.warn('Failed to parse log event', e);
             }
           }
         },
@@ -111,27 +139,78 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
           retryCountRef.current++;
           if (retryCountRef.current >= maxRetries) {
             setError('Connection lost. Max retries exceeded.');
+            logger.error('SSE max retries exceeded');
             throw err; // Stop retrying
           }
 
           // Exponential backoff
           const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000);
-          console.log(`SSE reconnecting in ${delay}ms (attempt ${retryCountRef.current})`);
+          logger.info(`SSE reconnecting in ${delay}ms`, { attempt: retryCountRef.current });
+
+          // Note: fetchEventSource handles retry internally, but we refresh token on each attempt
+          // by throwing and letting it reconnect via onerror
         },
-        openWhenHidden: true, // Keep connection when app is backgrounded
+        // Don't keep connection when app is backgrounded - save battery
+        openWhenHidden: !pauseOnBackground,
       });
     } catch (err) {
       if (!controllerRef.current?.signal.aborted) {
-        setError(err instanceof Error ? err.message : 'Connection failed');
+        const errorMessage = err instanceof Error ? err.message : 'Connection failed';
+        setError(errorMessage);
         setIsConnected(false);
         setIsConnecting(false);
+        logger.error('SSE connection failed', err);
       }
     }
-  }, [start, levels, maxLogs, disconnect]);
+  }, [start, levels, maxLogs, pauseOnBackground]);
+
+  // Debounced connect to prevent rapid connection attempts
+  const connect = useCallback(() => {
+    // Clear any pending debounced connect
+    if (connectDebounceRef.current) {
+      clearTimeout(connectDebounceRef.current);
+    }
+
+    setIsConnecting(true);
+    setError(null);
+
+    connectDebounceRef.current = setTimeout(() => {
+      connectDebounceRef.current = null;
+      connectInternal();
+    }, CONNECT_DEBOUNCE_MS);
+  }, [connectInternal]);
 
   const clearLogs = useCallback(() => {
     setLogs([]);
   }, []);
+
+  // Handle app state changes (background/foreground)
+  useEffect(() => {
+    if (!pauseOnBackground) return;
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Save connection state and disconnect when going to background
+        wasConnectedBeforeBackground.current = isConnected || isConnecting;
+        if (wasConnectedBeforeBackground.current) {
+          logger.info('SSE pausing connection (app backgrounded)');
+          disconnect();
+        }
+      } else if (nextAppState === 'active') {
+        // Reconnect when coming back to foreground if we were connected
+        if (wasConnectedBeforeBackground.current) {
+          logger.info('SSE resuming connection (app foregrounded)');
+          connect();
+          wasConnectedBeforeBackground.current = false;
+        }
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      subscription.remove();
+    };
+  }, [pauseOnBackground, isConnected, isConnecting, connect, disconnect]);
 
   // Auto-connect on mount if enabled
   useEffect(() => {

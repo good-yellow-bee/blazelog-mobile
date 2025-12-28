@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,10 +8,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Input } from '@/components/ui';
 import { useAuthStore } from '@/store';
 import { handleApiError, showErrorAlert } from '@/utils';
+import { loginRateLimiter, usernameSchema } from '@/utils/validation';
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  username: usernameSchema,
+  password: z.string().min(1, 'Password is required'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -19,6 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export const LoginScreen = () => {
   const theme = useTheme();
   const { login, isLoading } = useAuthStore();
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const {
     control,
@@ -33,14 +35,36 @@ export const LoginScreen = () => {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await login(data.username, data.password);
-    } catch (error) {
-      const apiError = handleApiError(error);
-      showErrorAlert(apiError, 'Login Failed');
-    }
-  };
+  const onSubmit = useCallback(
+    async (data: LoginFormData) => {
+      // Check rate limiting
+      if (!loginRateLimiter.isAllowed()) {
+        const retryAfterMs = loginRateLimiter.getRetryAfter();
+        const retryAfterSec = Math.ceil(retryAfterMs / 1000);
+        setIsRateLimited(true);
+
+        Alert.alert(
+          'Too Many Attempts',
+          `Please wait ${retryAfterSec} seconds before trying again.`,
+          [{ text: 'OK' }]
+        );
+
+        // Auto-reset rate limited state after the timeout
+        setTimeout(() => setIsRateLimited(false), retryAfterMs);
+        return;
+      }
+
+      try {
+        await login(data.username, data.password);
+        // Reset rate limiter on successful login
+        loginRateLimiter.reset();
+      } catch (error) {
+        const apiError = handleApiError(error);
+        showErrorAlert(apiError, 'Login Failed');
+      }
+    },
+    [login]
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -106,11 +130,11 @@ export const LoginScreen = () => {
               variant="primary"
               onPress={handleSubmit(onSubmit)}
               loading={isLoading}
-              disabled={!isValid}
+              disabled={!isValid || isRateLimited}
               fullWidth
               style={styles.button}
             >
-              Sign In
+              {isRateLimited ? 'Please Wait...' : 'Sign In'}
             </Button>
           </View>
         </ScrollView>

@@ -11,16 +11,24 @@ import { LoadingScreen } from '@/components/common';
 import { useAlertQuery, useCreateAlert, useUpdateAlert } from '@/hooks/useAlerts';
 import { useProjectStore } from '@/store';
 import { handleApiError, showErrorAlert } from '@/utils';
+import { alertConditionSchema, durationSchema } from '@/utils/validation';
 import type { AlertType, AlertSeverity } from '@/api/types';
 
 const alertSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(
+      /^[a-zA-Z0-9\s\-_]+$/,
+      'Name can only contain letters, numbers, spaces, dashes and underscores'
+    ),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   type: z.enum(['error_rate', 'log_match', 'threshold']),
-  condition: z.string().min(1, 'Condition is required'),
+  condition: alertConditionSchema,
   severity: z.enum(['info', 'warning', 'critical']),
-  window: z.string().min(1, 'Window is required'),
-  cooldown: z.string().min(1, 'Cooldown is required'),
+  window: durationSchema,
+  cooldown: durationSchema,
   notify: z.array(z.string()).min(1, 'At least one channel required'),
   enabled: z.boolean(),
 });
