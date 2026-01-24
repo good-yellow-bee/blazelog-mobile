@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { authApi, usersApi, setSessionClearer } from '@/api';
-import { storage, registerForPushNotifications, logger } from '@/utils';
+import {
+  storage,
+  registerForPushNotifications,
+  unregisterPushNotifications,
+  logger,
+} from '@/utils';
+import { useSettingsStore, waitForSettingsHydration } from './settingsStore';
 import type { User } from '@/api/types';
 
 interface AuthState {
@@ -17,6 +23,26 @@ interface AuthActions {
 }
 
 type AuthStore = AuthState & AuthActions;
+
+/**
+ * Register for push notifications only if enabled in settings.
+ * Waits for settings store to be hydrated from AsyncStorage first.
+ */
+const tryRegisterPushNotifications = async () => {
+  try {
+    // Wait for settings to be loaded from AsyncStorage
+    await waitForSettingsHydration();
+
+    const { notificationsEnabled } = useSettingsStore.getState();
+    if (notificationsEnabled) {
+      await registerForPushNotifications();
+    } else {
+      logger.info('Push notifications disabled in settings, skipping registration');
+    }
+  } catch (err) {
+    logger.error('Push notification registration failed', err);
+  }
+};
 
 export const useAuthStore = create<AuthStore>((set, get) => {
   const clearSession = async () => {
@@ -38,10 +64,9 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         await authApi.login(username, password);
         const user = await usersApi.getCurrentUser();
         set({ isAuthenticated: true, user, isLoading: false });
-        // Register for push notifications after successful login
-        registerForPushNotifications().catch((err) =>
-          logger.error('Push notification registration failed', err)
-        );
+        // Register for push notifications after successful login (respects settings)
+        // Fire and forget - don't block login completion
+        tryRegisterPushNotifications();
       } catch (error) {
         set({ isLoading: false });
         throw error;
@@ -51,6 +76,8 @@ export const useAuthStore = create<AuthStore>((set, get) => {
     logout: async () => {
       set({ isLoading: true });
       try {
+        // Unregister push token before logging out
+        await unregisterPushNotifications();
         await authApi.logout();
       } finally {
         await get().clearSession();
@@ -69,10 +96,9 @@ export const useAuthStore = create<AuthStore>((set, get) => {
         }
         const user = await usersApi.getCurrentUser();
         set({ isAuthenticated: true, user, isLoading: false });
-        // Register for push notifications after auth check
-        registerForPushNotifications().catch((err) =>
-          logger.error('Push notification registration failed', err)
-        );
+        // Register for push notifications after auth check (respects settings)
+        // Fire and forget - don't block auth check completion
+        tryRegisterPushNotifications();
       } catch {
         await get().clearSession();
       }

@@ -1,12 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { alertsApi } from '@/api';
-import type { Alert, AlertCreate, AlertUpdate } from '@/api/types';
+import type { Alert, AlertCreate, AlertUpdate, AlertHistoryParams } from '@/api/types';
 
 export const useAlertsQuery = (projectId?: string) => {
   return useQuery({
     queryKey: ['alerts', projectId],
     queryFn: () => alertsApi.getAlerts(projectId),
     enabled: !!projectId,
+  });
+};
+
+export const useAlertHistoryQuery = (params?: AlertHistoryParams) => {
+  // Flatten params into stable query key parts to avoid object reference comparison issues
+  return useQuery({
+    queryKey: [
+      'alertHistory',
+      params?.alert_id,
+      params?.project_id,
+      params?.page,
+      params?.per_page,
+    ],
+    queryFn: () => alertsApi.getAlertHistory(params),
   });
 };
 

@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { LogStackScreenProps } from '@/types/navigation';
 import { LogEntry } from '@/components/logs';
 import { useSSE } from '@/hooks/useSSE';
+import { useProjectStore } from '@/store';
 import type { Log, LogLevel } from '@/api/types';
 
 const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warning', 'error', 'fatal'];
@@ -13,6 +14,7 @@ const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warning', 'error', 'fatal'];
 export const LogStreamScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<LogStackScreenProps<'LogStream'>['navigation']>();
+  const { currentProjectId } = useProjectStore();
   const [isPaused, setIsPaused] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<LogLevel[]>([]);
   const [displayLogs, setDisplayLogs] = useState<Log[]>([]);
@@ -26,6 +28,7 @@ export const LogStreamScreen = () => {
     clearLogs,
   } = useSSE({
     levels: selectedLevels,
+    projectId: currentProjectId || undefined,
     autoConnect: true,
   });
 

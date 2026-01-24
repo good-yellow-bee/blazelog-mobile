@@ -1,10 +1,24 @@
 import { client } from './client';
-import type { ApiEnvelope, Alert, AlertCreate, AlertUpdate } from './types';
+import type {
+  ApiEnvelope,
+  Alert,
+  AlertCreate,
+  AlertUpdate,
+  AlertHistoryResponse,
+  AlertHistoryParams,
+} from './types';
 
 export const alertsApi = {
   async getAlerts(projectId?: string): Promise<Alert[]> {
     const params = projectId ? { project_id: projectId } : undefined;
     const response = await client.get<ApiEnvelope<Alert[]>>('/alerts', { params });
+    return response.data.data;
+  },
+
+  async getAlertHistory(params?: AlertHistoryParams): Promise<AlertHistoryResponse> {
+    const response = await client.get<ApiEnvelope<AlertHistoryResponse>>('/alerts/history', {
+      params,
+    });
     return response.data.data;
   },
 

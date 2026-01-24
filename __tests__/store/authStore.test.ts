@@ -21,6 +21,24 @@ jest.mock('@/utils', () => ({
     clearTokens: jest.fn(),
   },
   registerForPushNotifications: jest.fn(() => Promise.resolve('test-token')),
+  unregisterPushNotifications: jest.fn(() => Promise.resolve()),
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
+
+// Mock settingsStore
+jest.mock('@/store/settingsStore', () => ({
+  useSettingsStore: {
+    getState: () => ({
+      notificationsEnabled: true,
+      _hasHydrated: true,
+    }),
+    subscribe: jest.fn(),
+  },
+  waitForSettingsHydration: jest.fn(() => Promise.resolve()),
 }));
 
 describe('authStore', () => {

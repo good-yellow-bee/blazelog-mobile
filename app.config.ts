@@ -1,5 +1,7 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
+const isProduction = process.env.APP_ENV === 'production';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Blazelog',
@@ -17,6 +19,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'dev.blazelog.mobile',
+    infoPlist: {
+      NSAppTransportSecurity: isProduction
+        ? {
+            // Production: Enforce strict ATS (HTTPS only)
+            NSAllowsArbitraryLoads: false,
+          }
+        : {
+            // Development: Allow local networking for testing
+            NSAllowsArbitraryLoads: true,
+            NSAllowsLocalNetworking: true,
+          },
+    },
   },
   android: {
     adaptiveIcon: {

@@ -39,12 +39,13 @@ blazelog-mobile/
 ├── src/
 │   ├── api/
 │   │   ├── client.ts           # Axios instance with interceptors
-│   │   ├── types.ts            # Generated from OpenAPI
+│   │   ├── types.ts            # API types and interfaces
 │   │   ├── auth.ts             # Auth API functions
 │   │   ├── logs.ts             # Log API functions
 │   │   ├── alerts.ts           # Alert API functions
 │   │   ├── projects.ts         # Project API functions
-│   │   └── users.ts            # User API functions
+│   │   ├── users.ts            # User API functions
+│   │   └── connections.ts      # Connection/SSH API functions
 │   ├── components/
 │   │   ├── ui/                 # Reusable UI primitives
 │   │   │   ├── Button.tsx
@@ -134,6 +135,8 @@ blazelog-mobile/
 | ------------- | ---------------- | ----------------------------------------- |
 | `start`       | string (RFC3339) | Start time (required)                     |
 | `end`         | string (RFC3339) | End time (default now)                    |
+| `project_id`  | string (UUID)    | Filter by single project                  |
+| `project_ids` | string           | Comma-separated project UUIDs             |
 | `agent_id`    | string           | Filter by agent                           |
 | `level`       | string           | Filter by single level                    |
 | `levels`      | string           | Comma-separated levels                    |
@@ -147,7 +150,7 @@ blazelog-mobile/
 | `order`       | string           | Sort by `timestamp` or `level`            |
 | `order_dir`   | string           | Sort direction: `asc` or `desc`           |
 
-Note: The OpenAPI does not include `project_id` for logs; access is scoped by auth and backend configuration.
+**Project Scoping:** The `project_id` parameter filters logs to a specific project. When the user has a project selected in the app, this is automatically applied to log queries and SSE streams.
 
 #### `GET /logs/stats` - Log statistics
 
@@ -164,6 +167,7 @@ Returns a single log entry by ID.
 | Parameter     | Type             | Description                         |
 | ------------- | ---------------- | ----------------------------------- |
 | `start`       | string (RFC3339) | Start time (default last 5 minutes) |
+| `project_id`  | string (UUID)    | Filter by project                   |
 | `agent_id`    | string           | Filter by agent                     |
 | `level`       | string           | Filter by single level              |
 | `levels`      | string           | Comma-separated levels              |
@@ -186,6 +190,7 @@ Returns a single log entry by ID.
 - `GET/PUT/DELETE /users/{id}` - User management (admin only)
 - `PUT /users/{id}/password` - Reset user password (admin only; lower roles only; cannot reset own password)
 - `POST /users/me/push-token` - Register device push token
+- `DELETE /users/me/push-token` - Unregister device push token
 
 ### Alerts
 
@@ -1368,20 +1373,22 @@ Add to `package.json` scripts:
 }
 ```
 
-## Key Features to Implement
+## Key Features Implemented
 
 1. [x] Architecture documentation
-2. [ ] Project scaffolding (Expo init)
-3. [ ] Authentication flow (login, token refresh, logout)
-4. [ ] Log viewer with filtering & search
-5. [ ] Real-time log streaming (SSE)
-6. [ ] Alert management (CRUD)
-7. [ ] Project switching
-8. [ ] Offline support
-9. [ ] Push notifications
-10. [ ] Deep linking
-11. [ ] Change password (current user)
-12. [ ] Admin user management + password reset
+2. [x] Project scaffolding (Expo managed)
+3. [x] Authentication flow (login, token refresh, logout)
+4. [x] Log viewer with filtering & search (with project scoping)
+5. [x] Real-time log streaming (SSE with project scoping)
+6. [x] Alert management (CRUD with history)
+7. [x] Project switching
+8. [x] Offline support (TanStack Query caching)
+9. [x] Push notifications (register/unregister respects settings)
+10. [x] Deep linking
+11. [x] Change password (current user)
+12. [x] Admin user management + password reset
+13. [x] Connection management (SSH)
+14. [x] Project membership management
 
 ## Notes
 

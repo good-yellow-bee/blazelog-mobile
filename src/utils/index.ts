@@ -4,7 +4,11 @@ export { ApiError, handleApiError, showErrorAlert, getErrorMessage } from './err
 export type { ApiErrorResponse } from './errors';
 export { queryClient, asyncStoragePersister, MAX_PAGES_IN_MEMORY } from './queryClient';
 export { secureQueryStorage, clearAllQueryCache } from './secureQueryStorage';
-export { registerForPushNotifications, parseNotificationData } from './notifications';
+export {
+  registerForPushNotifications,
+  unregisterPushNotifications,
+  parseNotificationData,
+} from './notifications';
 export type { NotificationData } from './notifications';
 export { logger } from './logger';
 export {

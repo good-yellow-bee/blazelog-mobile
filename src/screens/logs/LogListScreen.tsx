@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -6,7 +6,8 @@ import type { LogStackScreenProps } from '@/types/navigation';
 import { LogFilter, LogList, toApiFilters } from '@/components/logs';
 import type { LogFilterState } from '@/components/logs';
 import { useLogsQuery, flattenLogs } from '@/hooks/useLogs';
-import type { Log } from '@/api/types';
+import { useProjectStore } from '@/store';
+import type { Log, LogFilters } from '@/api/types';
 
 const getDefaultStart = (): string => {
   const date = new Date();
@@ -17,13 +18,23 @@ const getDefaultStart = (): string => {
 export const LogListScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<LogStackScreenProps<'LogList'>['navigation']>();
+  const { currentProjectId } = useProjectStore();
 
   const [filters, setFilters] = useState<LogFilterState>({
     start: getDefaultStart(),
   });
 
+  // Combine UI filters with project scoping
+  const queryFilters: LogFilters = useMemo(() => {
+    const apiFilters = toApiFilters(filters);
+    if (currentProjectId) {
+      return { ...apiFilters, project_id: currentProjectId };
+    }
+    return apiFilters;
+  }, [filters, currentProjectId]);
+
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch, isRefetching } =
-    useLogsQuery(toApiFilters(filters));
+    useLogsQuery(queryFilters);
 
   const logs = flattenLogs(data?.pages);
 
