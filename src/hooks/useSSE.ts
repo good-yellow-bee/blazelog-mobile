@@ -13,6 +13,7 @@ const CONNECT_DEBOUNCE_MS = 500;
 interface UseSSEOptions {
   start?: string;
   levels?: string[];
+  projectId?: string; // Filter logs by project
   maxLogs?: number;
   autoConnect?: boolean;
   pauseOnBackground?: boolean;
@@ -38,6 +39,7 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
   const {
     start = getDefaultStart(),
     levels = [],
+    projectId,
     maxLogs = 500,
     autoConnect = false,
     pauseOnBackground = true, // Disable connection when app is backgrounded by default
@@ -90,6 +92,9 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
     const params = new URLSearchParams({ start });
     if (levels.length > 0) {
       params.set('levels', levels.join(','));
+    }
+    if (projectId) {
+      params.set('project_id', projectId);
     }
 
     const url = `${API_URL}/api/v1/logs/stream?${params.toString()}`;
@@ -162,7 +167,7 @@ export const useSSE = (options: UseSSEOptions = {}): UseSSEReturn => {
         logger.error('SSE connection failed', err);
       }
     }
-  }, [start, levels, maxLogs, pauseOnBackground]);
+  }, [start, levels, projectId, maxLogs, pauseOnBackground]);
 
   // Debounced connect to prevent rapid connection attempts
   const connect = useCallback(() => {

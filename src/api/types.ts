@@ -60,6 +60,8 @@ export interface LogsResponse {
 export interface LogFilters {
   start: string; // RFC3339 - required
   end?: string;
+  project_id?: string; // Filter by single project
+  project_ids?: string; // Comma-separated project IDs for multi-project filter
   agent_id?: string;
   level?: LogLevel;
   levels?: string; // comma-separated
@@ -77,18 +79,41 @@ export interface LogFilters {
 export interface LogStatsParams {
   start: string;
   end?: string;
+  project_id?: string; // Filter by single project
   agent_id?: string;
   type?: string;
   interval?: string;
 }
 
+// Backend StatsResponse structure
 export interface LogStats {
-  total: number;
-  by_level: Record<LogLevel, number>;
-  buckets: Array<{
-    timestamp: string;
+  error_rates: {
+    total_logs: number;
+    error_count: number;
+    warning_count: number;
+    fatal_count: number;
+    error_rate: number;
+  };
+  top_sources: Array<{
+    source: string;
     count: number;
+    error_count: number;
   }>;
+  volume: Array<{
+    timestamp: string;
+    total_count: number;
+    error_count: number;
+  }>;
+  http_stats?: {
+    total_2xx: number;
+    total_3xx: number;
+    total_4xx: number;
+    total_5xx: number;
+    top_uris?: Array<{
+      uri: string;
+      count: number;
+    }>;
+  };
 }
 
 // Alert types
@@ -136,6 +161,33 @@ export interface AlertUpdate {
   enabled?: boolean;
 }
 
+// Alert history types
+export interface AlertHistoryEntry {
+  id: string;
+  alert_id: string;
+  alert_name: string;
+  project_id: string;
+  project_name?: string;
+  triggered_at: string;
+  log_count: number;
+  severity: AlertSeverity;
+}
+
+export interface AlertHistoryResponse {
+  items: AlertHistoryEntry[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
+export interface AlertHistoryParams {
+  alert_id?: string;
+  project_id?: string;
+  page?: number;
+  per_page?: number;
+}
+
 // Project types
 export interface Project {
   id: string;
@@ -143,6 +195,81 @@ export interface Project {
   description?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProjectCreate {
+  name: string;
+  description?: string;
+}
+
+export interface ProjectUpdate {
+  name?: string;
+  description?: string;
+}
+
+export interface ProjectUser {
+  user_id: string;
+  username: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface AddProjectUserRequest {
+  user_id: string;
+  role?: UserRole;
+}
+
+// Connection types (SSH)
+export interface Connection {
+  id: string;
+  name: string;
+  host: string;
+  user: string;
+  project_id?: string;
+  enabled: boolean;
+  last_connected_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConnectionCreate {
+  name: string;
+  host: string;
+  user: string;
+  key_file?: string;
+  project_id?: string;
+  sources?: Array<{
+    path: string;
+    type: string;
+  }>;
+}
+
+export interface ConnectionUpdate {
+  name?: string;
+  host?: string;
+  user?: string;
+  key_file?: string;
+  project_id?: string;
+  enabled?: boolean;
+}
+
+export interface ConnectionTestResult {
+  success: boolean;
+  message: string;
+}
+
+// User management types (admin)
+export interface UserCreate {
+  username: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
+export interface UserUpdate {
+  username?: string;
+  email?: string;
+  role?: UserRole;
 }
 
 // Push notification types

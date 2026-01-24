@@ -75,6 +75,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 }
 
+export async function unregisterPushNotifications(): Promise<void> {
+  try {
+    // Unregister token from backend
+    await usersApi.unregisterPushToken();
+    logger.info('Push notification token unregistered');
+  } catch (error) {
+    logger.error('Failed to unregister push token', error);
+  }
+}
+
 export interface NotificationData {
   type?: 'alert';
   alertId?: string;

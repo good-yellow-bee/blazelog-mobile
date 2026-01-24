@@ -28,7 +28,7 @@ export const LoginScreen = () => {
     formState: { errors, isValid },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
       username: '',
       password: '',

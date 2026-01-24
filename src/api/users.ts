@@ -2,6 +2,8 @@ import { client } from './client';
 import type {
   ApiEnvelope,
   User,
+  UserCreate,
+  UserUpdate,
   ChangePasswordRequest,
   ResetPasswordRequest,
   PushTokenRequest,
@@ -27,6 +29,10 @@ export const usersApi = {
     await client.post('/users/me/push-token', data);
   },
 
+  async unregisterPushToken(): Promise<void> {
+    await client.delete('/users/me/push-token');
+  },
+
   // Admin operations
   async listUsers(): Promise<User[]> {
     const response = await client.get<ApiEnvelope<User[]>>('/users');
@@ -36,6 +42,20 @@ export const usersApi = {
   async getUser(id: string): Promise<User> {
     const response = await client.get<ApiEnvelope<User>>(`/users/${id}`);
     return response.data.data;
+  },
+
+  async createUser(data: UserCreate): Promise<User> {
+    const response = await client.post<ApiEnvelope<User>>('/users', data);
+    return response.data.data;
+  },
+
+  async updateUser(id: string, data: UserUpdate): Promise<User> {
+    const response = await client.put<ApiEnvelope<User>>(`/users/${id}`, data);
+    return response.data.data;
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    await client.delete(`/users/${id}`);
   },
 
   async resetUserPassword(id: string, password: string): Promise<void> {
