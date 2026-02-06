@@ -19,7 +19,7 @@ const formatTimestamp = (timestamp: string): string => {
   });
 };
 
-export const LogEntry = ({ log, onPress }: LogEntryProps) => {
+export const LogEntry = React.memo(({ log, onPress }: LogEntryProps) => {
   const theme = useTheme();
 
   return (
@@ -49,7 +49,9 @@ export const LogEntry = ({ log, onPress }: LogEntryProps) => {
       ) : null}
     </Pressable>
   );
-};
+});
+
+LogEntry.displayName = 'LogEntry';
 
 const styles = StyleSheet.create({
   container: {

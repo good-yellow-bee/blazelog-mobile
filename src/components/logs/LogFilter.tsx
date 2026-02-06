@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Chip, Searchbar, useTheme, Text } from 'react-native-paper';
 import type { LogLevel, LogFilters } from '@/api/types';
+import type { BlazelogTheme } from '@/theme';
 
 // Internal filter state with levels as array
 export interface LogFilterState {
@@ -19,14 +20,6 @@ interface LogFilterProps {
 
 const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warning', 'error', 'fatal'];
 
-const levelColors: Record<LogLevel, string> = {
-  debug: '#8b949e',
-  info: '#58a6ff',
-  warning: '#d29922',
-  error: '#f85149',
-  fatal: '#a371f7',
-};
-
 // Convert internal filter state to API format
 export const toApiFilters = (state: LogFilterState): LogFilters => ({
   ...state,
@@ -34,8 +27,12 @@ export const toApiFilters = (state: LogFilterState): LogFilters => ({
 });
 
 export const LogFilter = ({ filters, onFiltersChange }: LogFilterProps) => {
-  const theme = useTheme();
+  const theme = useTheme<BlazelogTheme>();
   const [searchQuery, setSearchQuery] = useState(filters.q || '');
+
+  const getLevelColor = (level: LogLevel): string => {
+    return theme.custom.colors[level] ?? theme.custom.colors.info;
+  };
 
   const handleLevelToggle = (level: LogLevel) => {
     const currentLevels = filters.levels || [];
@@ -65,14 +62,19 @@ export const LogFilter = ({ filters, onFiltersChange }: LogFilterProps) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outline },
+      ]}
+    >
       <Searchbar
         placeholder="Search logs..."
         value={searchQuery}
         onChangeText={setSearchQuery}
         onSubmitEditing={handleSearchSubmit}
         onClearIconPress={handleSearchClear}
-        style={styles.searchbar}
+        style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
         inputStyle={styles.searchInput}
       />
       <View style={styles.levelContainer}>
@@ -84,15 +86,16 @@ export const LogFilter = ({ filters, onFiltersChange }: LogFilterProps) => {
         >
           {LOG_LEVELS.map((level) => {
             const isSelected = filters.levels?.includes(level) || false;
+            const color = getLevelColor(level);
             return (
               <Chip
                 key={level}
                 selected={isSelected}
                 onPress={() => handleLevelToggle(level)}
-                style={[styles.chip, isSelected && { backgroundColor: `${levelColors[level]}30` }]}
+                style={[styles.chip, isSelected && { backgroundColor: `${color}30` }]}
                 textStyle={[
                   styles.chipText,
-                  { color: isSelected ? levelColors[level] : theme.colors.onSurfaceVariant },
+                  { color: isSelected ? color : theme.colors.onSurfaceVariant },
                 ]}
                 showSelectedCheck={false}
               >
@@ -111,12 +114,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
   },
   searchbar: {
     marginBottom: 12,
     elevation: 0,
-    backgroundColor: '#21262d',
   },
   searchInput: {
     fontSize: 14,

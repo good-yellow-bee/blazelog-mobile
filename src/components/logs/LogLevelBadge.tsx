@@ -1,30 +1,26 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import type { LogLevel } from '@/api/types';
+import type { BlazelogTheme } from '@/theme';
 
 interface LogLevelBadgeProps {
   level: LogLevel;
   style?: ViewStyle;
 }
 
-const levelColors: Record<LogLevel, { bg: string; text: string }> = {
-  debug: { bg: '#8b949e30', text: '#8b949e' },
-  info: { bg: '#58a6ff30', text: '#58a6ff' },
-  warning: { bg: '#d2992230', text: '#d29922' },
-  error: { bg: '#f8514930', text: '#f85149' },
-  fatal: { bg: '#a371f730', text: '#a371f7' },
-};
-
-export const LogLevelBadge = ({ level, style }: LogLevelBadgeProps) => {
-  const colors = levelColors[level] || levelColors.info;
+export const LogLevelBadge = React.memo(({ level, style }: LogLevelBadgeProps) => {
+  const theme = useTheme<BlazelogTheme>();
+  const color = theme.custom.colors[level] ?? theme.custom.colors.info;
 
   return (
-    <View style={[styles.badge, { backgroundColor: colors.bg }, style]}>
-      <Text style={[styles.text, { color: colors.text }]}>{level.toUpperCase()}</Text>
+    <View style={[styles.badge, { backgroundColor: `${color}30` }, style]}>
+      <Text style={[styles.text, { color }]}>{level.toUpperCase()}</Text>
     </View>
   );
-};
+});
+
+LogLevelBadge.displayName = 'LogLevelBadge';
 
 const styles = StyleSheet.create({
   badge: {
