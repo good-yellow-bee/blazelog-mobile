@@ -7,12 +7,15 @@ import type { LogStackScreenProps } from '@/types/navigation';
 import { LogEntry } from '@/components/logs';
 import { useSSE } from '@/hooks/useSSE';
 import { useProjectStore } from '@/store';
+import type { BlazelogTheme } from '@/theme';
 import type { Log, LogLevel } from '@/api/types';
 
 const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warning', 'error', 'fatal'];
 
+const LOG_ENTRY_HEIGHT = 88;
+
 export const LogStreamScreen = () => {
-  const theme = useTheme();
+  const theme = useTheme<BlazelogTheme>();
   const navigation = useNavigation<LogStackScreenProps<'LogStream'>['navigation']>();
   const { currentProjectId } = useProjectStore();
   const [isPaused, setIsPaused] = useState(false);
@@ -71,6 +74,15 @@ export const LogStreamScreen = () => {
 
   const keyExtractor = useCallback((item: Log) => item.id, []);
 
+  const getItemLayout = useCallback(
+    (_data: ArrayLike<Log> | null | undefined, index: number) => ({
+      length: LOG_ENTRY_HEIGHT,
+      offset: LOG_ENTRY_HEIGHT * index,
+      index,
+    }),
+    []
+  );
+
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       {isConnecting ? (
@@ -116,7 +128,12 @@ export const LogStreamScreen = () => {
         </Banner>
       )}
 
-      <View style={[styles.toolbar, { backgroundColor: theme.colors.surface }]}>
+      <View
+        style={[
+          styles.toolbar,
+          { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outline },
+        ]}
+      >
         <View style={styles.statusRow}>
           <View style={styles.statusIndicator}>
             <View
@@ -124,9 +141,9 @@ export const LogStreamScreen = () => {
                 styles.statusDot,
                 {
                   backgroundColor: isConnected
-                    ? '#2ea043'
+                    ? theme.custom.colors.success
                     : isConnecting
-                      ? '#d29922'
+                      ? theme.custom.colors.warning
                       : theme.colors.error,
                 },
               ]}
@@ -184,12 +201,21 @@ export const LogStreamScreen = () => {
         data={displayLogs}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={[styles.content, displayLogs.length === 0 && styles.emptyContent]}
+        removeClippedSubviews
+        maxToRenderPerBatch={15}
+        windowSize={5}
         inverted={false}
       />
 
-      <View style={[styles.footer, { backgroundColor: theme.colors.surface }]}>
+      <View
+        style={[
+          styles.footer,
+          { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline },
+        ]}
+      >
         <Text style={[styles.footerText, { color: theme.colors.onSurfaceVariant }]}>
           {displayLogs.length} logs in buffer
         </Text>
@@ -205,7 +231,6 @@ const styles = StyleSheet.create({
   toolbar: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
   },
   statusRow: {
     flexDirection: 'row',
@@ -268,7 +293,6 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#30363d',
   },
   footerText: {
     fontSize: 12,

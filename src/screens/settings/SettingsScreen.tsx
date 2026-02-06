@@ -1,12 +1,20 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, ScrollView, Pressable, Alert } from 'react-native';
-import { Text, useTheme, Switch, Divider, List } from 'react-native-paper';
+import { Text, useTheme, Switch, Divider, List, SegmentedButtons } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import type { SettingsStackScreenProps } from '@/types/navigation';
 import { useAuthStore, useProjectStore, useSettingsStore } from '@/store';
 import { useProjectQuery } from '@/hooks/useProjects';
 import { useCurrentUser } from '@/hooks/useUsers';
+
+type ThemeMode = 'light' | 'dark' | 'system';
+
+const THEME_OPTIONS = [
+  { value: 'light' as ThemeMode, label: 'Light', icon: 'white-balance-sunny' },
+  { value: 'dark' as ThemeMode, label: 'Dark', icon: 'moon-waning-crescent' },
+  { value: 'system' as ThemeMode, label: 'System', icon: 'cellphone' },
+];
 
 export const SettingsScreen = () => {
   const theme = useTheme();
@@ -38,9 +46,12 @@ export const SettingsScreen = () => {
     ]);
   }, [logout]);
 
-  const handleThemeToggle = useCallback(() => {
-    setTheme(themeMode === 'light' ? 'dark' : 'light');
-  }, [themeMode, setTheme]);
+  const handleThemeChange = useCallback(
+    (value: string) => {
+      setTheme(value as ThemeMode);
+    },
+    [setTheme]
+  );
 
   const handleNotificationsToggle = useCallback(() => {
     setNotificationsEnabled(!notificationsEnabled);
@@ -65,19 +76,18 @@ export const SettingsScreen = () => {
           <Text style={[styles.sectionTitle, { color: theme.colors.onSurfaceVariant }]}>
             Preferences
           </Text>
-          <List.Item
-            title="Dark Mode"
-            description="Use dark theme"
-            left={(props) => <List.Icon {...props} icon="brightness-6" />}
-            right={() => (
-              <Switch
-                value={themeMode === 'dark'}
-                onValueChange={handleThemeToggle}
-                color={theme.colors.primary}
-              />
-            )}
-            style={[styles.item, { backgroundColor: theme.colors.surface }]}
-          />
+          <View style={[styles.themeItem, { backgroundColor: theme.colors.surface }]}>
+            <View style={styles.themeHeader}>
+              <List.Icon icon="brightness-6" />
+              <Text style={[styles.themeLabel, { color: theme.colors.onSurface }]}>Appearance</Text>
+            </View>
+            <SegmentedButtons
+              value={themeMode}
+              onValueChange={handleThemeChange}
+              buttons={THEME_OPTIONS}
+              style={styles.segmentedButtons}
+            />
+          </View>
           <List.Item
             title="Push Notifications"
             description="Receive alert notifications"
@@ -188,6 +198,25 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginVertical: 2,
     borderRadius: 8,
+  },
+  themeItem: {
+    marginHorizontal: 8,
+    marginVertical: 2,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  themeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  themeLabel: {
+    fontSize: 16,
+    marginLeft: 4,
+  },
+  segmentedButtons: {
+    marginHorizontal: 8,
   },
   footer: {
     padding: 24,

@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from 'react-native';
 import {
   NavigationContainer,
   DarkTheme,
@@ -15,8 +16,9 @@ import { StyleSheet } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { queryClient, asyncStoragePersister, parseNotificationData } from '@/utils';
 import { RootNavigator, linking } from '@/navigation';
+import { ErrorBoundary } from '@/components/common';
 import { useSettingsStore } from '@/store';
-import { darkTheme, lightTheme, colors, lightColors } from '@/theme';
+import { createBlazelogTheme, colors, lightColors } from '@/theme';
 import type { RootStackParamList } from '@/types/navigation';
 
 const navigationDarkTheme: Theme = {
@@ -47,8 +49,13 @@ const navigationLightTheme: Theme = {
 
 export default function App() {
   const { theme: themeMode } = useSettingsStore();
-  const paperTheme = themeMode === 'light' ? lightTheme : darkTheme;
-  const navTheme = themeMode === 'light' ? navigationLightTheme : navigationDarkTheme;
+  const systemColorScheme = useColorScheme();
+
+  // Resolve the effective theme: 'system' follows device preference
+  const isDark = themeMode === 'system' ? systemColorScheme !== 'light' : themeMode !== 'light';
+
+  const paperTheme = useMemo(() => createBlazelogTheme(isDark), [isDark]);
+  const navTheme = isDark ? navigationDarkTheme : navigationLightTheme;
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   // Handle notification taps
@@ -81,10 +88,12 @@ export default function App() {
       >
         <PaperProvider theme={paperTheme}>
           <SafeAreaProvider>
-            <NavigationContainer ref={navigationRef} linking={linking} theme={navTheme}>
-              <RootNavigator />
-              <StatusBar style={themeMode === 'light' ? 'dark' : 'light'} />
-            </NavigationContainer>
+            <ErrorBoundary>
+              <NavigationContainer ref={navigationRef} linking={linking} theme={navTheme}>
+                <RootNavigator />
+                <StatusBar style={isDark ? 'light' : 'dark'} />
+              </NavigationContainer>
+            </ErrorBoundary>
           </SafeAreaProvider>
         </PaperProvider>
       </PersistQueryClientProvider>

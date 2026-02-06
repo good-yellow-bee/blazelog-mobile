@@ -16,6 +16,8 @@ interface LogListProps {
   hasNextPage: boolean;
 }
 
+const LOG_ENTRY_HEIGHT = 88;
+
 export const LogList = ({
   logs,
   onLogPress,
@@ -40,6 +42,15 @@ export const LogList = ({
       onEndReached();
     }
   }, [hasNextPage, isFetchingNextPage, onEndReached]);
+
+  const getItemLayout = useCallback(
+    (_data: ArrayLike<Log> | null | undefined, index: number) => ({
+      length: LOG_ENTRY_HEIGHT,
+      offset: LOG_ENTRY_HEIGHT * index,
+      index,
+    }),
+    []
+  );
 
   const renderFooter = () => {
     if (!isFetchingNextPage) return null;
@@ -74,6 +85,7 @@ export const LogList = ({
       data={logs}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
+      getItemLayout={getItemLayout}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
       refreshControl={
@@ -87,6 +99,9 @@ export const LogList = ({
       ListEmptyComponent={renderEmpty}
       contentContainerStyle={[styles.content, logs.length === 0 && styles.emptyContent]}
       style={{ backgroundColor: theme.colors.background }}
+      removeClippedSubviews
+      maxToRenderPerBatch={15}
+      windowSize={7}
     />
   );
 };

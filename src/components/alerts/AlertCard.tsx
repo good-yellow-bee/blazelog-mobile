@@ -3,6 +3,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import { Text, Switch, useTheme, Chip } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { Alert, AlertSeverity } from '@/api/types';
+import type { BlazelogTheme } from '@/theme';
 
 interface AlertCardProps {
   alert: Alert;
@@ -10,15 +11,15 @@ interface AlertCardProps {
   onToggle: (alert: Alert, enabled: boolean) => void;
 }
 
-const severityColors: Record<AlertSeverity, { bg: string; text: string }> = {
-  info: { bg: '#58a6ff30', text: '#58a6ff' },
-  warning: { bg: '#d2992230', text: '#d29922' },
-  critical: { bg: '#f8514930', text: '#f85149' },
+const severityToColorKey: Record<AlertSeverity, 'info' | 'warning' | 'error'> = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'error',
 };
 
-export const AlertCard = ({ alert, onPress, onToggle }: AlertCardProps) => {
-  const theme = useTheme();
-  const severityStyle = severityColors[alert.severity];
+export const AlertCard = React.memo(({ alert, onPress, onToggle }: AlertCardProps) => {
+  const theme = useTheme<BlazelogTheme>();
+  const severityColor = theme.custom.colors[severityToColorKey[alert.severity]];
 
   const handleToggle = () => {
     onToggle(alert, !alert.enabled);
@@ -64,8 +65,8 @@ export const AlertCard = ({ alert, onPress, onToggle }: AlertCardProps) => {
 
       <View style={styles.footer}>
         <Chip
-          style={[styles.severityChip, { backgroundColor: severityStyle.bg }]}
-          textStyle={[styles.severityText, { color: severityStyle.text }]}
+          style={[styles.severityChip, { backgroundColor: `${severityColor}30` }]}
+          textStyle={[styles.severityText, { color: severityColor }]}
           compact
         >
           {alert.severity.toUpperCase()}
@@ -76,7 +77,9 @@ export const AlertCard = ({ alert, onPress, onToggle }: AlertCardProps) => {
       </View>
     </Pressable>
   );
-};
+});
+
+AlertCard.displayName = 'AlertCard';
 
 const styles = StyleSheet.create({
   container: {
