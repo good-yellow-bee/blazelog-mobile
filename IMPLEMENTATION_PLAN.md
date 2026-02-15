@@ -1426,9 +1426,9 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 ---
 
-## Phase 11: Testing
+## Phase 11: Testing ✅
 
-### P11-1: Configure Jest
+### P11-1: Configure Jest ✅
 
 **Dependencies:** P0-1
 **Description:** Set up Jest for unit tests.
@@ -1439,11 +1439,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] `npm test` runs
+- [x] `npm test` runs
 
 ---
 
-### P11-2: Add React Native Testing Library
+### P11-2: Add React Native Testing Library ✅
 
 **Dependencies:** P11-1
 **Description:** Set up RNTL for component tests.
@@ -1451,11 +1451,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Can render and query components
+- [x] Can render and query components
 
 ---
 
-### P11-3: Write Auth Store Tests
+### P11-3: Write Auth Store Tests ✅
 
 **Dependencies:** P11-1, P2-1
 **Description:** Unit tests for auth store.
@@ -1472,11 +1472,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] All tests pass
+- [x] All tests pass
 
 ---
 
-### P11-4: Write API Error Handler Tests
+### P11-4: Write API Error Handler Tests ✅
 
 **Dependencies:** P11-1, P1-5
 **Description:** Unit tests for error handling.
@@ -1486,13 +1486,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Error parsing tested
-- [ ] Message mapping tested
-- [ ] Error shape matches `ApiErrorResponse` (`error.code`, `error.message`)
+- [x] Error parsing tested
+- [x] Message mapping tested
+- [x] Error shape matches `ApiErrorResponse` (`error.code`, `error.message`)
 
 ---
 
-### P11-5: Write LogEntry Component Tests
+### P11-5: Write LogEntry Component Tests ✅
 
 **Dependencies:** P11-2, P4-8
 **Description:** Component tests for LogEntry.
@@ -1502,12 +1502,12 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Renders all log fields
-- [ ] Level badge correct
+- [x] Renders all log fields
+- [x] Level badge correct
 
 ---
 
-### P11-6: Set Up Maestro E2E Tests
+### P11-6: Set Up Maestro E2E Tests ✅
 
 **Dependencies:** P5-3
 **Description:** Configure Maestro for E2E tests.
@@ -1517,11 +1517,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Login flow E2E test passes
+- [x] Login flow E2E test passes
 
 ---
 
-### P11-7: Write Log Viewing E2E Test
+### P11-7: Write Log Viewing E2E Test ✅
 
 **Dependencies:** P11-6, P6-3
 **Description:** E2E test for viewing logs.
@@ -1531,13 +1531,13 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Can login and view logs
+- [x] Can login and view logs
 
 ---
 
-## Phase 12: Polish & Release
+## Phase 12: Polish & Release ✅
 
-### P12-1: Add App Icons
+### P12-1: Add App Icons ✅
 
 **Dependencies:** P0-1
 **Description:** Create and configure app icons.
@@ -1548,11 +1548,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Icons display on both platforms
+- [x] Icons display on both platforms
 
 ---
 
-### P12-2: Add Splash Screen
+### P12-2: Add Splash Screen ✅
 
 **Dependencies:** P0-1
 **Description:** Configure splash screen.
@@ -1562,11 +1562,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Splash shows during load
+- [x] Splash shows during load
 
 ---
 
-### P12-3: Configure App Metadata
+### P12-3: Configure App Metadata ✅
 
 **Dependencies:** P12-1, P12-2
 **Description:** Update app.json with final metadata.
@@ -1580,11 +1580,11 @@ npx expo install react-native-screens react-native-safe-area-context react-nativ
 
 **Acceptance Criteria:**
 
-- [ ] Both platforms build
+- [x] Both platforms build
 
 ---
 
-### P12-4: Create Production Build
+### P12-4: Create Production Build ✅
 
 **Dependencies:** P12-3
 **Description:** Generate production builds.
@@ -1597,8 +1597,8 @@ eas build --platform android
 
 **Acceptance Criteria:**
 
-- [ ] iOS build succeeds
-- [ ] Android build succeeds
+- [x] iOS build succeeds
+- [x] Android build succeeds
 
 ---
 

@@ -1,4 +1,4 @@
-appId: com.blazelog.mobile
+appId: dev.blazelog.mobile
 ---
 # View Logs E2E Test (includes login)
 - launchApp
@@ -22,9 +22,7 @@ appId: com.blazelog.mobile
 # Wait for logs to load (or empty state)
 - extendedWaitUntil:
     visible:
-      anyOf:
-        - "No logs"
-        - id: "log-entry-.*"
+      text: "No logs found|ERROR|INFO|WARNING|DEBUG|FATAL"
     timeout: 15000
 
 # If logs exist, tap on first log to view details

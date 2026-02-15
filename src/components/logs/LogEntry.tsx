@@ -24,6 +24,7 @@ export const LogEntry = React.memo(({ log, onPress }: LogEntryProps) => {
 
   return (
     <Pressable
+      testID={`log-entry-${log.id}`}
       onPress={() => onPress(log)}
       style={({ pressed }) => [
         styles.container,

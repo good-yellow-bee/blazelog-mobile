@@ -1,11 +1,61 @@
-import '@testing-library/jest-native/extend-expect';
-
-// Mock react-native-reanimated
+// Mock react-native-reanimated (v4 requires full mock to avoid native worklet loading)
 jest.mock('react-native-reanimated', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Reanimated = require('react-native-reanimated/mock');
-  Reanimated.default.call = () => {};
-  return Reanimated;
+  const { View, Text, Image, Animated } = require('react-native');
+  const noop = () => {};
+  const identity = (t) => t;
+  return {
+    __esModule: true,
+    default: {
+      View,
+      Text,
+      Image,
+      ScrollView: Animated.ScrollView,
+      FlatList: Animated.FlatList,
+      createAnimatedComponent: identity,
+      addWhitelistedUIProps: noop,
+      addWhitelistedNativeProps: noop,
+    },
+    useSharedValue: (init) => ({ value: init, get: () => init }),
+    useAnimatedStyle: (fn) => fn(),
+    useAnimatedProps: (fn) => fn(),
+    useDerivedValue: (fn) => ({ value: fn(), get: () => fn() }),
+    useAnimatedRef: () => ({ current: null }),
+    useAnimatedScrollHandler: () => noop,
+    useAnimatedReaction: noop,
+    withTiming: (toValue, _config, cb) => {
+      if (cb) cb(true);
+      return toValue;
+    },
+    withSpring: (toValue, _config, cb) => {
+      if (cb) cb(true);
+      return toValue;
+    },
+    withDecay: (_config, cb) => {
+      if (cb) cb(true);
+      return 0;
+    },
+    withDelay: (_delay, anim) => anim,
+    withRepeat: identity,
+    withSequence: () => 0,
+    cancelAnimation: noop,
+    runOnJS: identity,
+    runOnUI: identity,
+    interpolate: noop,
+    Extrapolation: { CLAMP: 'clamp', EXTEND: 'extend', IDENTITY: 'identity' },
+    FadeIn: { duration: () => ({ duration: () => ({}) }) },
+    FadeOut: { duration: () => ({ duration: () => ({}) }) },
+    Layout: { duration: () => ({}) },
+    SlideInRight: { duration: () => ({}) },
+    SlideOutLeft: { duration: () => ({}) },
+    enableLayoutAnimations: noop,
+    createWorkletRuntime: noop,
+    makeMutable: identity,
+    measure: () => ({ x: 0, y: 0, width: 0, height: 0, pageX: 0, pageY: 0 }),
+    scrollTo: noop,
+    setUpTests: noop,
+    ReduceMotion: { System: 'system', Always: 'always', Never: 'never' },
+  };
 });
 
 // Mock expo-secure-store
